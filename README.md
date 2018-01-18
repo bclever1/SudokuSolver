@@ -10,7 +10,7 @@ I used this project to learn/explore the following subjects:
 2) Modern C++ including:
    a) Threads
    b) Thread-safe singletons (my design!) and classes
-   c) shared_ptrs and unique_ptrs and data structures of such beasts.
+   c) shared_ptrs and unique_ptrs and data structures of such beasts
    d) Memory management
    e) Functors (function classes)
 3) Algorithmic sudoku solving techniques.
