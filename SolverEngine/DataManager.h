@@ -64,7 +64,6 @@ public:
 		{
 			std::ofstream outfile("C:\\TestCases\\sudoku_debug.txt", ios::app);
 			outfile << theMsg << endl;
-			outfile << "MY_DEBUG: " << MY_DEBUG << endl;
 		}
 	}
 
