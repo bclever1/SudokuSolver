@@ -20,6 +20,6 @@ I used this project to learn/explore the following subjects:
 
 Known issues:
 (Hey I did this in five days.)
-1) Clearing the fast entry box sometimes leaves the character count at 1
-2) It's a little slow
+1) Clearing the fast entry box sometimes leaves the character count at 1 (fixed)
+2) It's a little slow (hmm not so with the Release version)
 3) shared_ptr memory doesn't seem to clean up the way I understood it should. 
