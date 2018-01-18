@@ -43,7 +43,7 @@ void Square::remove(int theval)
 		{
 			if (1)
 			{
-			    std:string s = "    Removing: " +  std::to_string(theval) + " from Square: (" \
+			    std::string s = "    Removing: " +  std::to_string(theval) + " from Square: (" \
 				                +  std::to_string(myRow) + "," + std::to_string(myCol) + ")\n";
 				DataManager<SolverPair>::GetInst()->logMessage(s);
 			}
@@ -83,7 +83,7 @@ void Square::removeAllExcept(int theval)
 			{
 				if (1)
 				{
-				    std:string s = "    Removing: " + std::to_string(theval) + " from Square: (" \
+				    std::string s = "    Removing: " + std::to_string(theval) + " from Square: (" \
 					               + std::to_string(myRow) + "," + std::to_string(myCol) + ")\n";
 					DataManager<SolverPair>::GetInst()->logMessage(s);
 				}

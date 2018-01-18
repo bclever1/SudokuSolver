@@ -11,7 +11,7 @@
 
 #include "Board.h"
 
-#define MY_DEBUG true
+#define MY_DEBUG 0
 
 template <typename T>
 class myDataClass
@@ -30,6 +30,43 @@ private:
 };
 
 struct myDataClassDisplayFunctor
+{
+	void operator()(std::shared_ptr<myDataClass<int>> c)
+	{
+		if (c != nullptr)
+		{
+			std::cout << c->getData() << std::endl;
+		}
+	}
+};
+
+template <typename W>
+class DataManager
+{
+public:
+
+	static DataManager* GetInst()
+	{
+		std::call_once(myOnceFlag, []() {new DataManager(); });
+		return DataManager::myInstance;
+	}
+
+	static void myFcn()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		// Do something...
+	}
+
+	static void logMessage(std::string theMsg)
+	{
+		if (MY_DEBUG)
+		{
+			std::ofstream outfile("C:\\TestCases\\sudoku_debug.txt", ios::app);
+			outfile << theMsg << endl;
+			outfile << "MY_DEBUG: " << MY_DEBUG << endl;
+		}
+	}
 
 	static void addElement(std::shared_ptr<W> theElement)
 	{
@@ -152,9 +189,14 @@ private:
 	{
 		myInstance = this;
 		DataManager::myData = new std::vector<std::shared_ptr<W>>();
-		std::ofstream outfile("C:\\TestCases\\sudoku_debug.txt", ios::out);
-		outfile << "New run..." << endl;
-		outfile.close();
+
+		if (MY_DEBUG)
+		{
+			std::ofstream outfile("C:\\TestCases\\sudoku_debug.txt", ios::out);
+			outfile << "New run..." << endl;
+			outfile << "My DEBUG: " << MY_DEBUG << endl;
+			outfile.close();
+		}
 	}
 
 	static DataManager<W>* myInstance;

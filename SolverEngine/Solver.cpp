@@ -24,7 +24,7 @@ void Solver::Run()
 		myThreads.clear();
 
 		// Do the obvious reductions of the rows, columns and blocks
-		DataManager<SolverPair>::GetInst()->logMessage("Here 1 in Solver::Run...\n");
+		DataManager<SolverPair>::GetInst()->logMessage("Here 1xxxxx in Solver::Run...\n");
 		for (int theItem = 1; theItem <= 9; ++theItem)
 		{
 			myThreads.push_back(new thread(&Solver::Reduce, this, Board::SquareGroupType_e::Row, theItem));

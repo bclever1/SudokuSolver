@@ -102,13 +102,13 @@ Board::~Board()
 	for (int i = 0; i <= 9; ++i)
 	{
 		myRows[i].clear();
-		delete myRows;
+		delete [] myRows;
 
 		myColumns[i].clear();
-		delete myColumns;
+		delete [] myColumns;
 
 		myBlocks[i].clear();
-		delete myBlocks;
+		delete [] myBlocks;
 	}
 
 	for (int i = 1; i <= 9; ++i)
