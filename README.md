@@ -2,7 +2,7 @@
 # SudokuSolver
 My badass sudoku solver
 
-This project is not made to be the fastest solver in the world. It will get faster as I 
+This project is not meant to be the fastest solver in the world. It will get faster as I 
 add more solving techniques (which means less guessing), nor is it the prettiest (yet). 
 I used this project to learn/explore the following subjects:
 
