@@ -16,7 +16,6 @@ I used this project to learn/explore the following subjects:
    d) shared_ptrs and unique_ptrs and data structures of such beasts
    e) memory management
    f) functors (function classes)
-   g) threading in C#
 3) Algorithmic sudoku solving techniques.
 4) Advanced debugging in VS2017
 5) GitHub
