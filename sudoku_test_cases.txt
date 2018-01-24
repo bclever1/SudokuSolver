@@ -22,5 +22,11 @@ Extreme from http://www.extremesudoku.info/sudoku.html
 Extreme from http://www.extremesudoku.info/sudoku.html
 1 0 0 0 4 0 0 0 6 0 0 0 6 0 5 0 0 0 0 0 3 0 8 0 4 0 0 0 6 0 0 0 0 0 5 0 8 0 7 0 5 0 3 0 1 0 3 0 0 0 0 0 9 0 0 0 2 0 7 0 8 0 0 0 0 0 2 0 9 0 0 0 9 0 0 0 1 0 0 0 3
 
+Very difficult from http://www.7sudoku.com/very-difficult
+0 1 0 0 0 4 7 6 5 8 0 3 0 0 0 0 0 0 0 0 5 0 0 2 0 0 0 0 0 9 3 0 0 4 0 0 0 7 0 0 1 5 2 0 0 0 0 6 0 0 0 9 0 0 0 0 0 4 0 0 0 0 1 0 0 0 0 0 0 8 4 0 0 0 0 0 5 0 0 0 2
+
+Very difficult from http://www.7sudoku.com/very-difficult
+7 0 0 0 4 8 0 0 0 0 5 0 0 0 0 0 2 4 0 0 0 0 0 9 0 0 1 0 2 0 0 0 0 0 5 0 3 0 9 0 5 0 0 0 6 0 0 0 4 7 0 0 3 0 0 0 0 0 1 0 0 4 0 1 8 0 0 0 0 6 9 0 2 0 0 7 0 0 0 0 0
+
 World's hardest sudoku (this one is tough and currently not solvable by this program)
 8 0 0 0 0 0 0 0 0 0 0 3 6 0 0 0 0 0 0 7 0 0 9 0 2 0 0 0 5 0 0 0 7 0 0 0 0 0 0 0 4 5 7 0 0 0 0 0 1 0 0 0 3 0 0 0 1 0 0 0 0 6 8 0 0 8 5 0 0 0 1 0 0 9 0 0 0 0 4 0 0
