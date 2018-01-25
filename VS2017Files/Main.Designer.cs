@@ -194,14 +194,21 @@
             this.textBox160 = new System.Windows.Forms.TextBox();
             this.textBox161 = new System.Windows.Forms.TextBox();
             this.textBox162 = new System.Windows.Forms.TextBox();
-            this.defaultButton = new System.Windows.Forms.Button();
             this.enableGuessingButton = new System.Windows.Forms.Button();
             this.disableGuessing = new System.Windows.Forms.Button();
             this.manualInputBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.exitButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.surrenderCountLabel = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.invalidCountLabel = new System.Windows.Forms.Label();
+            this.invalidLabel = new System.Windows.Forms.Label();
+            this.lowestScoreLabel = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.numGuesses = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -1128,7 +1135,7 @@
             // 
             // solveButton
             // 
-            this.solveButton.Location = new System.Drawing.Point(441, 776);
+            this.solveButton.Location = new System.Drawing.Point(370, 781);
             this.solveButton.Name = "solveButton";
             this.solveButton.Size = new System.Drawing.Size(122, 73);
             this.solveButton.TabIndex = 1;
@@ -1138,7 +1145,7 @@
             // 
             // clearButton
             // 
-            this.clearButton.Location = new System.Drawing.Point(569, 776);
+            this.clearButton.Location = new System.Drawing.Point(498, 781);
             this.clearButton.Name = "clearButton";
             this.clearButton.Size = new System.Drawing.Size(122, 73);
             this.clearButton.TabIndex = 3;
@@ -2064,29 +2071,19 @@
             this.textBox162.TabIndex = 0;
             this.textBox162.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // defaultButton
-            // 
-            this.defaultButton.Location = new System.Drawing.Point(57, 776);
-            this.defaultButton.Name = "defaultButton";
-            this.defaultButton.Size = new System.Drawing.Size(122, 73);
-            this.defaultButton.TabIndex = 5;
-            this.defaultButton.Text = "Default board";
-            this.defaultButton.UseVisualStyleBackColor = true;
-            this.defaultButton.Click += new System.EventHandler(this.defaultButton_Click);
-            // 
             // enableGuessingButton
             // 
-            this.enableGuessingButton.Location = new System.Drawing.Point(185, 776);
+            this.enableGuessingButton.Location = new System.Drawing.Point(114, 781);
             this.enableGuessingButton.Name = "enableGuessingButton";
             this.enableGuessingButton.Size = new System.Drawing.Size(122, 73);
             this.enableGuessingButton.TabIndex = 6;
             this.enableGuessingButton.Text = "Enable Guessing";
             this.enableGuessingButton.UseVisualStyleBackColor = true;
-            this.enableGuessingButton.Click += new System.EventHandler(this.button1_Click);
+            this.enableGuessingButton.Click += new System.EventHandler(this.enableGuessingButton_Click);
             // 
             // disableGuessing
             // 
-            this.disableGuessing.Location = new System.Drawing.Point(313, 776);
+            this.disableGuessing.Location = new System.Drawing.Point(242, 781);
             this.disableGuessing.Name = "disableGuessing";
             this.disableGuessing.Size = new System.Drawing.Size(122, 73);
             this.disableGuessing.TabIndex = 7;
@@ -2120,49 +2117,129 @@
             this.label2.TabIndex = 10;
             this.label2.Text = "Enter your board here.";
             // 
-            // button1
+            // exitButton
             // 
-            this.button1.Location = new System.Drawing.Point(1079, 776);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(115, 73);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "Exit";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            this.exitButton.Location = new System.Drawing.Point(1312, 767);
+            this.exitButton.Name = "exitButton";
+            this.exitButton.Size = new System.Drawing.Size(115, 73);
+            this.exitButton.TabIndex = 11;
+            this.exitButton.Text = "Exit";
+            this.exitButton.UseVisualStyleBackColor = true;
+            this.exitButton.Click += new System.EventHandler(this.exitButtonClick);
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.surrenderCountLabel);
+            this.groupBox1.Controls.Add(this.label5);
+            this.groupBox1.Controls.Add(this.invalidCountLabel);
+            this.groupBox1.Controls.Add(this.invalidLabel);
+            this.groupBox1.Controls.Add(this.lowestScoreLabel);
+            this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.disableGuessing);
+            this.groupBox1.Controls.Add(this.exitButton);
+            this.groupBox1.Controls.Add(this.enableGuessingButton);
+            this.groupBox1.Controls.Add(this.numGuesses);
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.clearButton);
+            this.groupBox1.Controls.Add(this.solveButton);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(12, -5);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(1481, 872);
+            this.groupBox1.Size = new System.Drawing.Size(1462, 872);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
+            // 
+            // surrenderCountLabel
+            // 
+            this.surrenderCountLabel.AutoSize = true;
+            this.surrenderCountLabel.Location = new System.Drawing.Point(968, 749);
+            this.surrenderCountLabel.Name = "surrenderCountLabel";
+            this.surrenderCountLabel.Size = new System.Drawing.Size(120, 20);
+            this.surrenderCountLabel.TabIndex = 19;
+            this.surrenderCountLabel.Text = "surrenderCount";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(790, 748);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(163, 20);
+            this.label5.TabIndex = 18;
+            this.label5.Text = "Number of surrenders";
+            // 
+            // invalidCountLabel
+            // 
+            this.invalidCountLabel.AutoSize = true;
+            this.invalidCountLabel.Location = new System.Drawing.Point(968, 820);
+            this.invalidCountLabel.Name = "invalidCountLabel";
+            this.invalidCountLabel.Size = new System.Drawing.Size(95, 20);
+            this.invalidCountLabel.TabIndex = 17;
+            this.invalidCountLabel.Text = "invalidCount";
+            // 
+            // invalidLabel
+            // 
+            this.invalidLabel.AutoSize = true;
+            this.invalidLabel.Location = new System.Drawing.Point(790, 820);
+            this.invalidLabel.Name = "invalidLabel";
+            this.invalidLabel.Size = new System.Drawing.Size(111, 20);
+            this.invalidLabel.TabIndex = 16;
+            this.invalidLabel.Text = "Invalid boards:";
+            // 
+            // lowestScoreLabel
+            // 
+            this.lowestScoreLabel.AutoSize = true;
+            this.lowestScoreLabel.Location = new System.Drawing.Point(968, 783);
+            this.lowestScoreLabel.Name = "lowestScoreLabel";
+            this.lowestScoreLabel.Size = new System.Drawing.Size(96, 20);
+            this.lowestScoreLabel.TabIndex = 15;
+            this.lowestScoreLabel.Text = "lowestScore";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(790, 783);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(89, 20);
+            this.label6.TabIndex = 14;
+            this.label6.Text = "Best score:";
+            // 
+            // numGuesses
+            // 
+            this.numGuesses.AutoSize = true;
+            this.numGuesses.Location = new System.Drawing.Point(968, 715);
+            this.numGuesses.Name = "numGuesses";
+            this.numGuesses.Size = new System.Drawing.Size(104, 20);
+            this.numGuesses.TabIndex = 13;
+            this.numGuesses.Text = "numGuesses";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(790, 715);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(151, 20);
+            this.label4.TabIndex = 12;
+            this.label4.Text = "Number of guesses:";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(89, 54);
+            this.label3.Location = new System.Drawing.Point(6, 57);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(487, 20);
+            this.label3.Size = new System.Drawing.Size(724, 20);
             this.label3.TabIndex = 11;
-            this.label3.Text = "You may enter the values in by hand or use the fast entry box below.";
+            this.label3.Text = "You may enter the values in by hand (use TAB or 0 for empty squares) or use the f" +
+    "ast entry box below.";
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1513, 926);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(1487, 926);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.manualInputBox);
-            this.Controls.Add(this.disableGuessing);
-            this.Controls.Add(this.enableGuessingButton);
-            this.Controls.Add(this.defaultButton);
             this.Controls.Add(this.tableLayoutPanel2);
-            this.Controls.Add(this.clearButton);
-            this.Controls.Add(this.solveButton);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.groupBox1);
             this.Name = "Main";
@@ -2346,15 +2423,22 @@
         private System.Windows.Forms.TextBox textBox160;
         private System.Windows.Forms.TextBox textBox161;
         private System.Windows.Forms.TextBox textBox162;
-        private System.Windows.Forms.Button defaultButton;
         private System.Windows.Forms.Button enableGuessingButton;
         private System.Windows.Forms.Button disableGuessing;
         private System.Windows.Forms.TextBox manualInputBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button exitButton;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label numGuesses;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lowestScoreLabel;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label invalidCountLabel;
+        private System.Windows.Forms.Label invalidLabel;
+        private System.Windows.Forms.Label surrenderCountLabel;
+        private System.Windows.Forms.Label label5;
     }
 }
 
