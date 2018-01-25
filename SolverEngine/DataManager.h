@@ -159,13 +159,6 @@ public:
 					if ((*solver).get()->GetState() == Solver::SolverState::READY)
 					{
 						++myActiveSolvers;
-
-						//solver->get()->Run();
-
-						//std::function<void()> run_callback = std::bind(&Solver::Run, solver->get());
-
-						//myTimerClass* tc = new myTimerClass(run_callback);
-
 						thread* t = new thread(&Solver::Run, solver->get());
 						t->detach();
 					}
