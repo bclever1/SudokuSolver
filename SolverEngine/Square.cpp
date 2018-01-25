@@ -5,38 +5,72 @@
 #include "DataManager.h"
 #include "SolverPair.h"
 
+
 Square::Square(int theRow, int theCol) : myRow(theRow), myCol(theCol)
 {
-	myValues = new vector<int>({ 1,2,3,4,5,6,7,8,9 });
+	for (int i = 1; i <= 9; ++i)
+	{
+		myValues[i] = 1;
+	}
 }
 
 Square::~Square()
 {
-	myValues->clear();
-	delete myValues;
+#if 0
+	while (myValues.size() > 0)
+	{
+		myValues.pop_back();
+	}
+
+	myValues.shrink_to_fit();
+#endif
+
 }
 
 bool Square::contains(int theval)
 {
-	for (std::vector<int>::iterator itr = myValues->begin();
-		itr != myValues->end();
-		++itr)
+	std::lock_guard<std::mutex> guard(myMutex);
 
+	if (myValues[theval] == 1) return true;
+	return false;
+
+#if 0
+	for (std::vector<int>::iterator itr = myValues.begin();
+		itr != myValues.end();
+		++itr)
 	{
 		if (*itr == theval)
 		{
 			return true;
 		}
 	}
+#endif
 
-	return false;
 }
 
 
 void Square::remove(int theval)
 {
-	for (std::vector<int>::iterator itr = myValues->begin();
-		itr != myValues->end();
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	int theResult = 0;
+
+	for (int i = 1; i <= 9; ++i)
+	{
+		if (myValues[i] == 1)
+		{
+			theResult += 1;
+		}
+	}
+
+	if (theResult > 1)
+	{
+		myValues[theval] = 0;
+	}
+
+#if 0
+	for (std::vector<int>::iterator itr = myValues.begin();
+		itr != myValues.end();
 		++itr)
 	{
 		if (*itr == theval)
@@ -48,10 +82,12 @@ void Square::remove(int theval)
 				DataManager<SolverPair>::GetInst()->logMessage(s);
 			}
 
-			myValues->erase(itr);
+			myValues.erase(itr);
 			return;
 		}
 	}
+#endif
+
 }
 
 
@@ -59,9 +95,23 @@ void Square::removeAllExcept(int theval)
 {
 	// First make sure I contain the specified value
 
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	if (myValues[theval] == 1)
+	{
+		for (int i = 1; i <= 9; ++i)
+		{
+			if (i != theval)
+			{
+				myValues[i] = 0;
+			}
+		}
+	}
+
+#if 0
 	bool found = false;
-	for (std::vector<int>::iterator itr = myValues->begin();
-		itr != myValues->end();
+	for (std::vector<int>::iterator itr = myValues.begin();
+		itr != myValues.end();
 		++itr)
 	{
 		if (*itr == theval)
@@ -73,10 +123,10 @@ void Square::removeAllExcept(int theval)
 
 	if (found == false) return;
 
-	while (myValues->size() > 1)
+	while (myValues.size() > 1)
 	{
-		for (std::vector<int>::iterator itr = myValues->begin();
-			itr != myValues->end();
+		for (std::vector<int>::iterator itr = myValues.begin();
+			itr != myValues.end();
 			++itr)
 		{
 			if (*itr != theval)
@@ -88,32 +138,42 @@ void Square::removeAllExcept(int theval)
 					DataManager<SolverPair>::GetInst()->logMessage(s);
 				}
 
-				myValues->erase(itr);
+				myValues.erase(itr);
 				break;
 			}
 		}
 	}
+#endif
+
 }
 
 
-void Square::setValue(int theValue)
+void Square::setValue(int theval)
 {
-	if (theValue != 0)
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	if (theval != 0)
 	{
-		myValues->clear();
-		myValues->push_back(theValue);
+		for (int i = 1; i <= 9; ++i)
+		{
+			myValues[i] = 0;
+		}
+		myValues[theval] = 1;
 	}
 }
 
 
 int Square::getValue()
 {
+	std::lock_guard<std::mutex> guard(myMutex);
 	int theResult = 0;
-	for (vector<int>::iterator itr = myValues->begin();
-		itr != myValues->end();
-		++itr)
+
+	for (int i = 1; i <= 9; ++i)
 	{
-		theResult += (*itr);
+		if (myValues[i] == 1)
+		{
+			theResult += i;
+		}
 	}
 
 	return theResult;
@@ -122,30 +182,60 @@ int Square::getValue()
 
 int Square::getCount()
 {
-	return myValues->size();
+	std::lock_guard<std::mutex> guard(myMutex);
+	int theResult = 0;
+
+	for (int i = 1; i <= 9; ++i)
+	{
+		if (myValues[i] == 1)
+		{
+			theResult += 1;
+		}
+	}
+
+	return theResult;
 }
 
-bool Square::compareValues(vector<int>& v)
+bool Square::compareValues(bitset<10>& v)
 {
-	if ((*myValues) == v) return true;
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	for (int i = 1; i <= 9; ++i)
+	{
+		if (myValues[i] != v[i])
+		{
+			return false;
+		}
+	}
+
 	return false;
 }
 
-int Square::getPos(int thePos)
+int Square::getSingleton()
 {
-	return (*myValues)[thePos];
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	for (int i = 1; i <=9; ++i)
+	{
+		if (myValues[i] == 1)
+		{
+			return i;
+		}
+	}
+	return 0;
 }
 
-void Square::copyValues(vector<int>& v)
+void Square::copyValues(bitset<10>& v)
 {
-	myValues->clear();
-
-	for (int i = 0; i < v.size(); ++i)
+	std::lock_guard<std::mutex> guard(myMutex);
+	
+	for (int i = 1; i <= 9; ++i)
 	{
-		myValues->push_back((v)[i]);
+		myValues[i] = v[i];
 	}
 }
-vector<int> Square::getValues()
+bitset<10>& Square::getValues()
 {
-	return *myValues;
+	std::lock_guard<std::mutex> guard(myMutex);
+	return myValues;
 }

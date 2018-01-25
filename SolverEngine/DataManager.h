@@ -8,10 +8,12 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <list>
 
 #include "Board.h"
-
-#define MY_DEBUG 0
+#include "Timer.h"
+#include "Solver.h"
+#include "Macros.h"
 
 template <typename T>
 class myDataClass
@@ -43,6 +45,72 @@ struct myDataClassDisplayFunctor
 template <typename W>
 class DataManager
 {
+private:
+
+	static DataManager<W>* myInstance;
+	static std::once_flag myOnceFlag;
+
+	std::list<std::unique_ptr<W>> myData;
+
+	std::mutex myMutex;
+	bool guessingEnabled;
+	bool solutionFound;
+	unsigned long numGuesses;
+	unsigned long numInvalids;
+	unsigned long bestScore;
+	unsigned long numSurrenders;
+	unsigned long myActiveSolvers;
+
+	DataManager()
+	{
+		myInstance = this;
+
+		guessingEnabled = false;
+		solutionFound = false;
+		numGuesses = 0;
+		numInvalids = 0;
+		bestScore = 0;
+		numSurrenders = 0;
+		myActiveSolvers = 0;
+
+		if (MY_DEBUG)
+		{
+			std::ofstream outfile("C:\\TestCases\\sudoku_debug.txt", ios::out);
+			outfile << "New run..." << endl;
+			outfile.close();
+		}
+	}
+
+	void ClearData()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		if (myActiveSolvers == 0)
+		{
+			int counter = 0;
+
+			while (myData.size() > 0)
+			{
+				myData.pop_back();
+				++counter;
+			}
+
+			solutionFound = false;
+			bestScore = 10000;
+			numGuesses = 0;
+			myActiveSolvers = 0;
+		}
+		else
+		{
+			std::function<void()> run_callback = std::bind(&DataManager::Run, this);
+
+			myTimerClass tc(run_callback);
+
+			thread* t = new thread(&myTimerClass::timer, tc, 100);
+			t->detach();
+		}
+	}
+
 public:
 
 	static DataManager* GetInst()
@@ -51,61 +119,143 @@ public:
 		return DataManager::myInstance;
 	}
 
-	static void myFcn()
+	void myFcn()
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
 
 		// Do something...
 	}
 
-	static void logMessage(std::string theMsg)
+	void Initialize()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+	}
+
+	void Execute()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+        // Set a timer so that main caller can return
+
+		std::function<void()> run_callback = std::bind(&DataManager::Run, this);
+
+		myTimerClass tc(run_callback);
+
+		thread* t = new thread(&myTimerClass::timer, tc, 100);
+		t->detach();
+	}
+
+	void Run()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		if (myData.size() > 0)
+		{
+			for (auto solver = myData.begin();
+				solver != myData.end();
+				++solver)
+			{
+				if (myActiveSolvers < 10)
+				{
+					if ((*solver).get()->GetState() == Solver::SolverState::READY)
+					{
+						++myActiveSolvers;
+
+						//solver->get()->Run();
+
+						//std::function<void()> run_callback = std::bind(&Solver::Run, solver->get());
+
+						//myTimerClass* tc = new myTimerClass(run_callback);
+
+						thread* t = new thread(&Solver::Run, solver->get());
+						t->detach();
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
+		std::function<void()> run_callback = std::bind(&DataManager::Run, this);
+
+		myTimerClass tc(run_callback);
+
+		thread* t = new thread(&myTimerClass::timer, tc, 500);
+		t->detach();
+	}
+
+	void logMessage(std::string theMsg)
 	{
 		if (MY_DEBUG)
 		{
+			std::lock_guard<std::mutex> guard(myMutex);
 			std::ofstream outfile("C:\\TestCases\\sudoku_debug.txt", ios::app);
 			outfile << theMsg << endl;
 		}
 	}
 
-	static void addElement(std::shared_ptr<W> theElement)
-	{
-		std::lock_guard<std::mutex> guard(myMutex);
-		myData->push_back(theElement);
-	}
-
-	static std::shared_ptr<W> getElementAt(int theIdx)
+	void addElement(std::unique_ptr<W> theElement)
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
 
-		if (theIdx < myData->size())
+		if (stopped == false)
 		{
-			return (*myData)[theIdx];
+			myData.push_back(theElement);
+			++numGuesses;
 		}
-
-		return nullptr;
 	}
 
-	static std::shared_ptr<W> removeElementAt(int theIdx)
+	void addElement(Solver* p)
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
-		std::vector<std::shared_ptr<W>>::iterator itr;
 
-		int myIdx = 0;
-		for (itr = myData->begin(), myIdx = 0; myIdx <= theIdx; ++itr, ++myIdx)
-		{
-			if (myIdx == theIdx)
+		std::unique_ptr<Solver> P = std::make_unique<Solver>(*p);
+
+		myData.push_back(std::move(P));
+
+		++numGuesses;
+	}
+
+	std::unique_ptr<W>& getElementAt(int theIdx)
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		if (theIdx < myData.size())
+		{ 
+			int idx = 0;
+			for (std::list<std::unique_ptr<W>>::iterator itr = myData.begin();
+				itr != myData.end();
+				++itr, ++idx)
 			{
-				std::shared_ptr<W> temp = *itr;
-				myData->erase(itr);
-				return temp;
+				if (idx == theIdx)
+				{
+					return (*itr);
+				}
 			}
 		}
 
 		return nullptr;
 	}
 
+	std::unique_ptr<W> removeElementAt(int theIdx)
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		int idx = 0;
+		for (std::list<std::unique_ptr<W>>::iterator itr = myData.begin();
+			itr != myData->end();
+			++itr, ++idx)
+		{
+			if (idx == theIdx)
+			{
+				myData->erase(*itr);
+			}
+		}
+	}
+
 	template <typename T>
-	static std::shared_ptr<W> removeElementById(T theId)
+	static std::unique_ptr<W> removeElementById(T theId)
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
 		std::vector<std::shared_ptr<W>>::iterator itr;
@@ -123,104 +273,138 @@ public:
 		return nullptr;
 	}
 
-	static void displayAll()
+	void displayAll()
 	{
 		myDataClassDisplayFunctor f;
 		std::for_each(myData->begin(), myData->end(), f);
 	}
 
-	static void Reset()
-	{
-		myData->clear();
-		mySpecialData = nullptr;
-	}
-
-	static std::shared_ptr<Board> GetSolvedBoard()
+	void Reset()
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
 
-		if (mySpecialData != nullptr)
+		int counter = 0;
+
+		while (myData.size() > 0)
 		{
-			return mySpecialData.get()->GetBoardPtr();
+			myData.pop_back();
+			++counter;
+		}
+
+		solutionFound = false;
+		bestScore = 10000;
+		numGuesses = 0;
+		myActiveSolvers = 0;
+
+	}
+
+	std::unique_ptr<Solver>* GetSolvedBoard()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		for (auto Solver = myData.begin();
+			 Solver != myData.end();
+			 ++Solver)
+		{
+			if ((*Solver).get()->GetState() == Solver::SolverState::SOLVED)
+			{
+				return &(*Solver);
+			}
 		}
 
 		return nullptr;
 	}
 
-	static bool GetSolvedYet()
+	bool GetSolvedYet()
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
-		if (mySpecialData != nullptr)
-		{
-			return true;
-		}
-
-		return false;
+		return solutionFound;
 	}
 
-	static void SolutionFound(std::shared_ptr<W> theW)
+	void SolutionFound(Solver* s)
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
-		mySpecialData = theW;
+		solutionFound = true;
 	}
 
-	static void EnableGuessing()
+	void EnableGuessing()
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
+
 		guessingEnabled = true;
 	}
 
-	static void DisableGuessing()
+	void DisableGuessing()
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
+
 		guessingEnabled = false;
 	}
 
-	static bool IsGuessingEnabled()
+	bool IsGuessingEnabled()
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
+
 		return guessingEnabled;
 	}
 
-private:
-
-	DataManager()
+	void RegisterCompld(Solver* s)
 	{
-		myInstance = this;
-		DataManager::myData = new std::vector<std::shared_ptr<W>>();
+		std::lock_guard<std::mutex> guard(myMutex);
 
-		if (MY_DEBUG)
+		if (s->GetState() == Solver::SolverState::INVALID)
 		{
-			std::ofstream outfile("C:\\TestCases\\sudoku_debug.txt", ios::out);
-			outfile << "New run..." << endl;
-			outfile << "My DEBUG: " << MY_DEBUG << endl;
-			outfile.close();
+			++numInvalids;
+			--myActiveSolvers;
+		}
+		else if (s->GetState() == Solver::SolverState::SURRENDERED)
+		{
+			++numSurrenders;
+			--myActiveSolvers;
 		}
 	}
 
-	static DataManager<W>* myInstance;
-	static std::vector<std::shared_ptr<W>>* myData;
-	static std::once_flag myOnceFlag;
-	static std::mutex myMutex;
-	static std::shared_ptr<W> mySpecialData;
-	static bool guessingEnabled;
+	unsigned long GetNumSurrenders()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		return numSurrenders;
+	}
+
+	unsigned long GetNumGuesses()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		return numGuesses;
+	}
+
+	unsigned long GetNumInvalids()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		return numInvalids;
+	}
+
+	void SetScore(unsigned long myScore)
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		if (myScore < bestScore)
+		{
+			bestScore = myScore;
+		}
+	}
+
+	unsigned long GetBestScore()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		return bestScore;
+	}
 };
-
-
-template <typename W>
-std::once_flag DataManager<W>::myOnceFlag;
-
-template <typename W>
-std::mutex DataManager<W>::myMutex;
 
 template <typename W>
 DataManager<W>* DataManager<W>::myInstance = nullptr;
 
 template <typename W>
-std::vector<std::shared_ptr<W>>* DataManager<W>::myData = nullptr;
-
-template <typename W>
-std::shared_ptr<W> DataManager<W>::mySpecialData = nullptr;
-
-template <typename W>
-bool DataManager<W>::guessingEnabled = false;
+std::once_flag DataManager<W>::myOnceFlag;

@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <mutex>
+#include <bitset>
 
 using namespace std;
 
@@ -16,7 +17,7 @@ public:
 	Board();
 	~Board();
 
-	Board(Board* b);
+	Board(Board& b);
 
 	/* Return the state of square[i,j]... a summation of all its values */
 	int GetValue(int i, int j);
@@ -46,10 +47,7 @@ public:
 	bool Solved();
 
 	/* Get the contents of square[row,col]*/
-	vector<int> GetSquareValues(int row, int col);
-
-	/* Start the guessing process for this board. */
-	void MakeGuesses();
+	bitset<10>& GetSquareValues(int row, int col);
 
 	/* Remove the value at position thePos from square[row,col]. */
 	void RemoveValueAtPosFromSquare(int row, int col, int thePos);
@@ -68,6 +66,15 @@ public:
 	{
 		return square_to_block_map[theRow][theCol];
 	}
+
+	/* Set the value of the given square */
+	void SetSquareValue(int row, int col, int theval);
+
+	/* How many values are in the given square */
+	int GetSquareCount(int row, int col);
+
+	/* Does square contain the value? */
+	bool Contains(int row, int col, int theval);
 
 private:
 

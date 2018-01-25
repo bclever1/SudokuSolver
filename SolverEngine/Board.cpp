@@ -9,7 +9,7 @@
 #include "Board.h"
 #include "Square.h"
 #include "DataManager.h"
-#include "SolverPair.h"
+#include "Solver.h"
 
 using namespace std;
 
@@ -30,6 +30,8 @@ int Board::square_to_block_map[10][10] =
 Board::Board()
 {
 	std::lock_guard<std::mutex> guard(myMutex);
+
+	int my_size = 0;
 
 	for (int i = 0; i <= 9; ++i)
 	{
@@ -95,20 +97,34 @@ Board::Board()
 			}
 		}
 	}
+
+#if DEBUG
+	my_size += sizeof(mySquares);
+	string the_msg = "Board size: " + std::to_string(my_size);
+	DataManager<Solver>::GetInst()->logMessage(the_msg);
+#endif
+
+
 }
 
 Board::~Board()
 {
-	for (int i = 0; i <= 9; ++i)
+	for (int i = 1; i <= 9; ++i)
 	{
-		myRows[i].clear();
-		myRows[i].shrink_to_fit();
+		while (myRows[i].size() > 0)
+		{
+			myRows[i].clear();
+		}
 
-		myColumns[i].clear();
-		myColumns[i].shrink_to_fit();
+		while (myColumns[i].size() > 0)
+		{
+			myColumns[i].clear();
+		}
 
-		myBlocks[i].clear();
-		myBlocks[i].shrink_to_fit();
+		while (myBlocks[i].size() > 0)
+		{
+			myBlocks[i].clear();
+		}
 	}
 
 	for (int i = 1; i <= 9; ++i)
@@ -147,16 +163,15 @@ struct mySquareFunctor
 	}
 };
 
-bool Board::Solved()
+struct myValidationFunctor
 {
-	std::lock_guard<std::mutex> guard(myMutex);
-	mySquareFunctor f;
-	bool theResult = true;
-
-	for (int i = 1; i <= 9; ++i)
+	bool operator()(vector<Square*>& v)
 	{
-		for (std::vector<Square*>::iterator itr = myBlocks[i].begin();
-			itr != myBlocks[i].end();
+		mySquareFunctor f;
+		bool theResult = true;
+
+		for (auto itr = v.begin();
+			itr != v.end();
 			++itr)
 		{
 			if (!f((*itr)))
@@ -164,7 +179,41 @@ bool Board::Solved()
 				return false;
 			}
 		}
+
+		return true;
 	}
+};
+
+
+bool Board::Solved()
+{
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	myValidationFunctor f;
+	bool theResult = true;
+
+	for (int i = 1; i <= 9; ++i)
+	{
+		if (!f(myRows[i]))
+		{
+			return false;
+		}
+    }
+	for (int i = 1; i <= 9; ++i)
+	{
+		if (!f(myColumns[i]))
+		{
+			return false;
+		}
+	}
+	for (int i = 1; i <= 9; ++i)
+	{
+		if (!f(myBlocks[i]))
+		{
+			return false;
+		}
+	}
+
 	return true;
 
 }
@@ -172,7 +221,7 @@ bool Board::Solved()
 void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-	DataManager<SolverPair>::GetInst()->logMessage("Here 1 in Board::Reduce...\n");
+	DataManager<Solver>::GetInst()->logMessage("Here 1 in Board::Reduce...\n");
 
 	vector<Square*>* grpToReduce = nullptr;
 
@@ -198,7 +247,7 @@ void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 
 		int theCount = 0;
 
-		for (std::vector<Square*>::iterator itr = grpToReduce->begin();
+		for (auto itr = grpToReduce->begin();
 			itr != grpToReduce->end();
 			++itr)
 		{
@@ -211,7 +260,7 @@ void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 		if (theCount == 1)
 		{
 			// Remove the reducer from all the squares except the singleton
-			for (std::vector<Square*>::iterator itr1 = grpToReduce->begin();
+			for (auto itr1 = grpToReduce->begin();
 				itr1 != grpToReduce->end();
 				++itr1)
 			{
@@ -228,14 +277,14 @@ void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 		}
 	}
 
-	DataManager<SolverPair>::GetInst()->logMessage("Leaving Board::Reduce...\n");
+	DataManager<Solver>::GetInst()->logMessage("Leaving Board::Reduce...\n");
 }
 
 
 void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-	DataManager<SolverPair>::GetInst()->logMessage("Here 1 in Board::RemoveStrandedSingles...\n");
+	DataManager<Solver>::GetInst()->logMessage("Here 1 in Board::RemoveStrandedSingles...\n");
 
 	vector<Square*>* v = nullptr;
 
@@ -260,7 +309,7 @@ void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theIt
 		// If reducer only occurs once in the set of squares we can remove all other values
 		//vector<Square*>* theContainer = new vector<Square*>();
 
-		for (std::vector<Square*>::iterator itr = v->begin();
+		for (auto itr = v->begin();
 			itr != v->end();
 			++itr)
 
@@ -278,9 +327,9 @@ void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theIt
 		int theCount = 0;
 		Square* theGoodSquare = nullptr;
 
-		for (std::vector<Square*>::iterator itr = v->begin();
-			itr != v->end();
-			++itr)
+		for (auto itr = v->begin();
+			 itr != v->end();
+			 ++itr)
 
 		{
 			if ((*itr)->getCount() > 1 && (*itr)->contains(reducer))
@@ -297,7 +346,7 @@ void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theIt
 		}
 	}
 
-	DataManager<SolverPair>::GetInst()->logMessage("Leaving Board::RemoveStrandedSingles...\n");
+	DataManager<Solver>::GetInst()->logMessage("Leaving Board::RemoveStrandedSingles...\n");
 }
 
 
@@ -305,7 +354,7 @@ void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 
-	DataManager<SolverPair>::GetInst()->logMessage("Here 1 in Board::RemoveNakedPairs...\n");
+	DataManager<Solver>::GetInst()->logMessage("Here 1 in Board::RemoveNakedPairs...\n");
 
 	vector<Square*> v;
 
@@ -326,14 +375,16 @@ void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 	{
 		for (int pair2 = pair1 + 1; pair2 <= 9; ++pair2)
 		{
-			vector<int> thePair{ pair1, pair2 };
+			bitset<10> thePair;
+			thePair[pair1] = 1;
+			thePair[pair2] = 1;
 
 			// Scan the squares of v to see if they equal this pair... if we find two we've got a naked pair
 
 			int pairCount = 0;
 			vector<Square*> thePairSet;
 
-			for (std::vector<Square*>::iterator itr = v.begin();
+			for (auto itr = v.begin();
 				itr != v.end();
 				++itr)
 			{
@@ -347,7 +398,7 @@ void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 			{
 				// Found a naked pair! We can remove pair1 and pair2 from all other squares
 
-				for (std::vector<Square*>::iterator itr = v.begin();
+				for (auto itr = v.begin();
 					itr != v.end();
 					++itr)
 				{
@@ -367,7 +418,7 @@ void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 		}
 	}
 
-	DataManager<SolverPair>::GetInst()->logMessage("Leaving Board::RemoveNakedPairs...\n");
+	DataManager<Solver>::GetInst()->logMessage("Leaving Board::RemoveNakedPairs...\n");
 }
 
 
@@ -375,7 +426,7 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 
-	DataManager<SolverPair>::GetInst()->logMessage("Here 1 in Board::PointingPairs...\n");
+	DataManager<Solver>::GetInst()->logMessage("Here 1 in Board::PointingPairs...\n");
 
 	for (int reducer = 1; reducer <= 9; ++reducer)
 	{
@@ -386,7 +437,7 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 
 		vector<Square*> theGoodSquares;
 
-		for (std::vector<Square*>::iterator sqr = myBlocks[theItem].begin();
+		for (auto sqr = myBlocks[theItem].begin();
 			sqr != myBlocks[theItem].end();
 			++sqr)
 		{
@@ -400,9 +451,9 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 			vector<int> theRowNums;
 			vector<int> theColNums;
 
-			for (std::vector<Square*>::iterator good_sqr = theGoodSquares.begin();
-				good_sqr != theGoodSquares.end();
-				++good_sqr)
+			for (auto good_sqr = theGoodSquares.begin();
+				 good_sqr != theGoodSquares.end();
+				 ++good_sqr)
 			{
 				theRowNums.push_back((*good_sqr)->GetRowNum());
 				theColNums.push_back((*good_sqr)->GetColNum());
@@ -426,7 +477,7 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 
 				Board::GetBlockRowComplement(theItem, the_complement_1, the_complement_2);
 
-				for (std::vector<Square*>::iterator itx = myRows[theRow].begin();
+				for (auto itx = myRows[theRow].begin();
 					itx != myRows[theRow].end();
 					++itx)
 				{
@@ -453,7 +504,7 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 
 				Board::GetBlockColumnComplement(theItem, the_complement_1, the_complement_2);
 
-				for (std::vector<Square*>::iterator itx = myColumns[theCol].begin();
+				for (auto itx = myColumns[theCol].begin();
 					itx != myColumns[theCol].end();
 					++itx)
 				{
@@ -470,7 +521,7 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 		}
 	}
 
-	DataManager<SolverPair>::GetInst()->logMessage("Leaving Board::PointingPairs...\n");
+	DataManager<Solver>::GetInst()->logMessage("Leaving Board::PointingPairs...\n");
 }
 
 int Board::GetBoardState()
@@ -490,9 +541,11 @@ int Board::GetBoardState()
 	return result;
 }
 
-Board::Board(Board* b)
+Board::Board(Board& b)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
+
+	int my_size = 0;
 
 	for (int i = 0; i <= 9; ++i)
 	{
@@ -563,9 +616,14 @@ Board::Board(Board* b)
 	{
 		for (int j = 1; j <= 9; ++j)
 		{
-			mySquares[i][j]->copyValues(b->mySquares[i][j]->getValues());
+			mySquares[i][j]->copyValues(b.mySquares[i][j]->getValues());
 		}
 	}
+
+	my_size += sizeof(mySquares);
+
+	string the_msg = "Board size: " + std::to_string(my_size);
+	DataManager<Solver>::GetInst()->logMessage(the_msg);
 }
 
 struct validityChecker
@@ -579,9 +637,11 @@ struct validityChecker
 
 bool Board::CheckValid()
 {
+	clock_t start_run = clock();
+
 	bool theResult = true;
 
-	// If any row, column or block contains two or ore singletons then invalid
+	// If any row, column or block contains two or more singletons then invalid
 	{
 		for (int r = 1; r <= 9; ++r)
 		{
@@ -593,7 +653,7 @@ bool Board::CheckValid()
 			{
 				if ((*sqr)->getCount() == 1)
 				{
-					++theCounts[(*sqr)->getPos(0)];
+					++theCounts[(*sqr)->getSingleton()];
 				}
 			}
 
@@ -618,7 +678,7 @@ bool Board::CheckValid()
 			{
 				if ((*sqr)->getCount() == 1)
 				{
-					++theCounts[(*sqr)->getPos(0)];
+					++theCounts[(*sqr)->getSingleton()];
 				}
 			}
 
@@ -644,7 +704,7 @@ bool Board::CheckValid()
 			{
 				if ((*sqr)->getCount() == 1)
 				{
-					++theCounts[(*sqr)->getPos(0)];
+					++theCounts[(*sqr)->getSingleton()];
 				}
 			}
 
@@ -657,52 +717,13 @@ bool Board::CheckValid()
 			}
 		}
 	}
+
 	return true;
 }
 
-vector<int> Board::GetSquareValues(int row, int col)
+bitset<10>& Board::GetSquareValues(int row, int col)
 {
 	return mySquares[row][col]->getValues();
-}
-
-
-void Board::MakeGuesses()
-{
-	std::lock_guard<std::mutex> guard(myMutex);
-
-	if (DataManager<SolverPair>::GetInst()->GetSolvedYet() == false)
-	{
-
-		for (int i = 1; i <= 9; ++i)
-		{
-			for (int j = 1; j <= 9; ++j)
-			{
-				if (mySquares[i][j]->getCount() == 2)
-				{
-					for (int pos = 0; pos < 2; ++pos)
-					{
-						std::shared_ptr<Board>b(new Board(this));
-
-						b.get()->RemoveValueFromSquare(i, j, mySquares[i][j]->getPos(pos));
-
-						std::shared_ptr<Solver>s(new Solver());
-						std::shared_ptr<SolverPair>p(new SolverPair(b, s));
-
-						s->SetParent(p);
-
-						try
-						{
-							DataManager<SolverPair>::GetInst()->addElement(p);
-							s->Run();
-						}
-						catch (...)
-						{
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 void Board::RemoveValueAtPosFromSquare(int row, int col, int thePos)
@@ -749,4 +770,20 @@ void Board::GetBlockColumnComplement(int theBlock, int& compl_1, int& compl_2)
 	case 9: compl_1 = 3; compl_2 = 6; return;
 	default: compl_1 = -1; compl_2 = -1; return;
 	};
+}
+
+void Board::SetSquareValue(int row, int col, int theval)
+{
+	std::lock_guard<std::mutex> guard(myMutex);
+	mySquares[row][col]->setValue(theval);
+}
+
+bool Board::Contains(int row, int col, int theval)
+{
+	return mySquares[row][col]->contains(theval);
+}
+
+int Board::GetSquareCount(int row, int col)
+{
+	return mySquares[row][col]->getCount();
 }
