@@ -16,15 +16,6 @@ Square::Square(int theRow, int theCol) : myRow(theRow), myCol(theCol)
 
 Square::~Square()
 {
-#if 0
-	while (myValues.size() > 0)
-	{
-		myValues.pop_back();
-	}
-
-	myValues.shrink_to_fit();
-#endif
-
 }
 
 bool Square::contains(int theval)
@@ -33,19 +24,6 @@ bool Square::contains(int theval)
 
 	if (myValues[theval] == 1) return true;
 	return false;
-
-#if 0
-	for (std::vector<int>::iterator itr = myValues.begin();
-		itr != myValues.end();
-		++itr)
-	{
-		if (*itr == theval)
-		{
-			return true;
-		}
-	}
-#endif
-
 }
 
 
@@ -67,27 +45,6 @@ void Square::remove(int theval)
 	{
 		myValues[theval] = 0;
 	}
-
-#if 0
-	for (std::vector<int>::iterator itr = myValues.begin();
-		itr != myValues.end();
-		++itr)
-	{
-		if (*itr == theval)
-		{
-			if (1)
-			{
-			    std::string s = "    Removing: " +  std::to_string(theval) + " from Square: (" \
-				                +  std::to_string(myRow) + "," + std::to_string(myCol) + ")\n";
-				DataManager<SolverPair>::GetInst()->logMessage(s);
-			}
-
-			myValues.erase(itr);
-			return;
-		}
-	}
-#endif
-
 }
 
 
@@ -107,44 +64,6 @@ void Square::removeAllExcept(int theval)
 			}
 		}
 	}
-
-#if 0
-	bool found = false;
-	for (std::vector<int>::iterator itr = myValues.begin();
-		itr != myValues.end();
-		++itr)
-	{
-		if (*itr == theval)
-		{
-			found = true;
-			break;
-		}
-	}
-
-	if (found == false) return;
-
-	while (myValues.size() > 1)
-	{
-		for (std::vector<int>::iterator itr = myValues.begin();
-			itr != myValues.end();
-			++itr)
-		{
-			if (*itr != theval)
-			{
-				if (1)
-				{
-				    std::string s = "    Removing: " + std::to_string(theval) + " from Square: (" \
-					               + std::to_string(myRow) + "," + std::to_string(myCol) + ")\n";
-					DataManager<SolverPair>::GetInst()->logMessage(s);
-				}
-
-				myValues.erase(itr);
-				break;
-			}
-		}
-	}
-#endif
-
 }
 
 
