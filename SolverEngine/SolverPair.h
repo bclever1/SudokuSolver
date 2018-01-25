@@ -3,20 +3,26 @@
 #include <memory>
 #include "Solver.h"
 
+#if 0
 class SolverPair
 {
 public:
 
-	SolverPair(std::shared_ptr<Board> theBoard, std::shared_ptr<Solver> theSolver) : myBoard(theBoard), mySolver(theSolver) {}
+	explicit SolverPair(Board* theBoard, Solver* theSolver) : myBoard(theBoard), mySolver(theSolver) {}
+	explicit SolverPair(SolverPair* theSp) : myBoard(theSp->myBoard), mySolver(theSp->mySolver) {}
+
 	~SolverPair() 
 	{
-	
+		delete myBoard;
+		delete mySolver;
 	}
 
-	std::shared_ptr<Board> GetBoardPtr() { return myBoard; }
-	std::shared_ptr<Solver> GetSolverPtr() { return mySolver; }
+	Board* GetBoardPtr() { return myBoard; }
+	Solver* GetSolverPtr() { return mySolver; }
 
 private:
-	std::shared_ptr<Board> myBoard;
-	std::shared_ptr<Solver> mySolver;
+	Solver* mySolver;
+	Board* myBoard;
+	
 };
+#endif

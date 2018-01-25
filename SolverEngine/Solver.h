@@ -3,13 +3,26 @@
 #include "Board.h"
 #include <memory>
 
-class SolverPair;
-
 class Solver
 {
 	public:
 
-		Solver() {}
+		enum SolverState {
+			ACTIVE,
+			READY,
+			INVALID,
+			RUNNING,
+            SURRENDERED,
+			SOLVED
+		};
+
+		explicit Solver() : myBoard(nullptr), mySolverState(SolverState::READY) 
+		{
+		}
+		explicit Solver(const Solver& s) : myBoard(s.myBoard), mySolverState(s.mySolverState) 
+		{
+		}
+		
 		~Solver() {}
 
 		void Run();
@@ -19,12 +32,22 @@ class Solver
 		void RemoveNakedPairs(Board::SquareGroupType_e theItemType, int theItem);
 		void PointingPairs(Board::SquareGroupType_e theItemType, int theItem);
 
-		void SetParent(std::shared_ptr<SolverPair> theParent)
+		void ClearBoard()
 		{
-			myParent = theParent;
+			myBoard = nullptr;
 		}
+
+		void SetBoard(Board* theBoard) { myBoard = theBoard; }
+		Board* GetBoard() { return myBoard; }
+
+		Solver::SolverState GetState() { return mySolverState; }
 
 private:
 
-	std::shared_ptr<SolverPair> myParent;
+	void MakeGuesses();
+
+	SolverState mySolverState;
+	Board* myBoard;
+	std::mutex myMutex;
+	
 };
