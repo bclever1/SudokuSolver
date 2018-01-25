@@ -16,12 +16,7 @@ I used this project to learn/explore the following subjects:
    d) shared_ptrs and unique_ptrs and data structures of such beasts
    e) memory management
    f) functors (function classes)
+   g) finite state machines in both C# and C++
 3) Algorithmic sudoku solving techniques.
 4) Advanced debugging in VS2017
 5) GitHub
-
-Known issues:
-(Hey I did this in five days.)
-1) Clearing the fast entry box sometimes leaves the character count at 1 (fixed)
-2) It's a little slow (hmm not so with the Release version)
-3) shared_ptr memory doesn't seem to clean up the way I understood it should. 
