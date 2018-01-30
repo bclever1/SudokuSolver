@@ -9,6 +9,8 @@ namespace SudokuInterface
 {
     public static class SudokuLibApi
     {
+        public static int RESPONSE_SIZE = 810;
+
 #if true
 
         [DllImport(@"SudokuAPI.dll", EntryPoint = "Initialize", CallingConvention = CallingConvention.Cdecl)]
@@ -23,11 +25,14 @@ namespace SudokuInterface
         [DllImport(@"SudokuAPI.dll", EntryPoint = "GetBoardValue", CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetBoardValue();
 
-        [DllImport(@"SudokuAPI.dll", EntryPoint = "IsSolved", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool IsSolved();
+        [DllImport(@"SudokuAPI.dll", EntryPoint = "GetActiveSolvers", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr GetActiveSolvers();
 
         [DllImport(@"SudokuAPI.dll", EntryPoint = "Solve", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Solve();
+
+        [DllImport(@"SudokuAPI.dll", EntryPoint = "GetIsSolved", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool GetIsSolved();
 
         [DllImport(@"SudokuAPI.dll", EntryPoint = "EnableGuessing", CallingConvention = CallingConvention.Cdecl)]
         public static extern void EnableGuessing();
@@ -46,9 +51,11 @@ namespace SudokuInterface
 
         [DllImport(@"SudokuAPI.dll", EntryPoint = "GetNumSurrenders", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr GetNumSurrenders();
-#endif
 
-#if false
+        [DllImport(@"SudokuAPI.dll", EntryPoint = "Shutdown", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool Shutdown();
+
+#else
 
         [DllImport(@"C:\Users\Brian\source\repos\SudokuSolver\Debug\SudokuAPI.dll", EntryPoint = "Initialize", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Initialize(byte[] b);
@@ -62,8 +69,8 @@ namespace SudokuInterface
         [DllImport(@"C:\Users\Brian\source\repos\SudokuSolver\Debug\SudokuAPI.dll", EntryPoint = "GetBoardValue", CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetBoardValue();
 
-        [DllImport(@"C:\Users\Brian\source\repos\SudokuSolver\Debug\SudokuAPI.dll", EntryPoint = "IsSolved", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool IsSolved();
+        [DllImport(@"C:\Users\Brian\source\repos\SudokuSolver\Debug\SudokuAPI.dll", EntryPoint = "GetActiveSolvers", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr GetActiveSolvers();
 
         [DllImport(@"C:\Users\Brian\source\repos\SudokuSolver\Debug\SudokuAPI.dll", EntryPoint = "Solve", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Solve();
@@ -85,6 +92,13 @@ namespace SudokuInterface
 
         [DllImport(@"C:\Users\Brian\source\repos\SudokuSolver\Debug\SudokuAPI.dll", EntryPoint = "GetNumSurrenders", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr GetNumSurrenders();
+
+        [DllImport(@"C:\Users\Brian\source\repos\SudokuSolver\Debug\SudokuAPI.dll", EntryPoint = "GetIsSolved", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool GetIsSolved();
+
+        [DllImport(@"C:\Users\Brian\source\repos\SudokuSolver\Debug\SudokuAPI.dll", EntryPoint = "Shutdown", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool Shutdown();
+
 #endif
     }
 }

@@ -2244,6 +2244,7 @@
             this.Controls.Add(this.groupBox1);
             this.Name = "Main";
             this.Text = "Most excellent sudoku solver";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);

@@ -360,7 +360,7 @@ namespace SudokuInterface
             int rowIdx = 1;
             int colIdx = 1;
 
-            for (int i = 0; i < 810; ++i)
+            for (int i = 0; i < SudokuLibApi.RESPONSE_SIZE; ++i)
             {
                 if (theData[i] == 0)
                 {
@@ -422,7 +422,7 @@ namespace SudokuInterface
 
         private void exitButtonClick(object sender, EventArgs e)
         {
-            Close();
+            mySolverFSM.EventOccured(SolverFSM.transitionEvent.EXIT_BUTTON_CLICKED, null);
         }
 
         public void ResetDisplay()
@@ -431,17 +431,18 @@ namespace SudokuInterface
             {
                 for (int j = 1; j <= 9; ++j)
                 {
-                    myInputBoxes[i, j].Text = string.Empty;
-                    myResultsDisplay[i, j].Text = string.Empty;
+                    SetControlText(myInputBoxes[i, j], string.Empty);
+                    SetControlText(myResultsDisplay[i, j], string.Empty);
                 }
             }
 
-            manualInputBox.Text = string.Empty;
-            label1.Text = "Manual entry... 0 for empty boxes.";
-            numGuesses.Text = "0";
-            lowestScoreLabel.Text = "0";
-            surrenderCountLabel.Text = "0";
-            invalidCountLabel.Text = "0";
+            SetControlText(manualInputBox, string.Empty);
+            SetControlText(label1, "Manual entry... 0 for empty boxes.");
+            SetControlText(numGuesses, "0");
+            SetControlText(lowestScoreLabel, "0");
+            SetControlText(surrenderCountLabel, "0");
+            SetControlText(invalidCountLabel, "0");
+            SetControlEnabled(clearButton, true);
         }
 
         public void SetBestScore(byte[] theData)
@@ -451,7 +452,8 @@ namespace SudokuInterface
 
         public void SetNumGuesses(byte[] theData)
         {
-            SetControlText(numGuesses, System.Text.Encoding.Default.GetString(theData));
+            var theStr = System.Text.Encoding.Default.GetString(theData).ToString();
+            SetControlText(numGuesses, theStr);
         }
 
         public void SetInvalidCount(byte[] theData)
@@ -472,6 +474,40 @@ namespace SudokuInterface
         public void EnableClearButton()
         {
             SetControlEnabled(clearButton, true);
+        }
+
+        public void DisableExitButton()
+        {
+            SetControlEnabled(exitButton, false);
+        }
+
+        public void EnableExitButton()
+        {
+            SetControlEnabled(exitButton, true);
+        }
+
+        public void Shutdown()
+        {
+            CloseForm(this);
+        }
+
+        Action<Form> setterCallback_Close = (toSet) => toSet.Close();
+
+        private void CloseForm(Form toSet)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(setterCallback_Close, toSet);
+            }
+            else
+            {
+                setterCallback_Close(toSet);
+            }
+        }
+
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            mySolverFSM.EventOccured(SolverFSM.transitionEvent.EXIT_BUTTON_CLICKED, null);
         }
     }
 }

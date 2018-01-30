@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SudokuInterface
 {
-    public enum RequestType { Solve, IsSolved, GetSolved, GetCurrent, Reset, None, GetNumGuesses, GetNumInvalids, GetBestScore, GetNumSurrenders };
+    public enum RequestType { Solve, IsSolved, GetSolved, GetCurrent, Reset, None, GetNumGuesses, GetNumInvalids, GetBestScore, GetNumSurrenders, GetActiveSolvers, Shutdown };
 
     public class Request
     {
@@ -24,7 +24,7 @@ namespace SudokuInterface
         {
             myRequester = theRequester;
             myRequestType = theRequestType;
-            myByteData = new byte[810];
+            myByteData = new byte[SudokuLibApi.RESPONSE_SIZE];
             myBoolData = false;
             myLongData = 0;
             myQueueSize = 0;
@@ -131,7 +131,7 @@ namespace SudokuInterface
                         }
                         else if (req.myRequestType == RequestType.IsSolved)
                         {
-                            bool theResult = SudokuLibApi.IsSolved();
+                            bool theResult = SudokuLibApi.GetIsSolved();
                             req.SetData(theResult);
                             req.SetQueueSize(myRequests.Count);
 
@@ -142,11 +142,25 @@ namespace SudokuInterface
                                 m.RequestResponse(req);
                             }
                         }
+                        else if (req.myRequestType == RequestType.GetActiveSolvers)
+                        {
+                            IntPtr theResult = SudokuLibApi.GetActiveSolvers();
+                            byte[] bytes = new byte[SudokuLibApi.RESPONSE_SIZE];
+                            Marshal.Copy(theResult, bytes, 0, SudokuLibApi.RESPONSE_SIZE);
+                            req.SetData(bytes);
+                            req.SetQueueSize(myRequests.Count);
+
+                            SolverFSM m = (SolverFSM)req.myRequester;
+                            if (m != null)
+                            {
+                                m.RequestResponse(req);
+                            }
+                        }
                         else if (req.myRequestType == RequestType.GetSolved)
                         {
                             IntPtr theCurrentBoard = SudokuLibApi.GetCurrentBoard();
-                            byte[] bytes = new byte[810];
-                            Marshal.Copy(theCurrentBoard, bytes, 0, 810);
+                            byte[] bytes = new byte[SudokuLibApi.RESPONSE_SIZE];
+                            Marshal.Copy(theCurrentBoard, bytes, 0, SudokuLibApi.RESPONSE_SIZE);
                             req.SetData(bytes);
                             req.SetQueueSize(myRequests.Count);
 
@@ -160,8 +174,8 @@ namespace SudokuInterface
                         else if (req.myRequestType == RequestType.GetNumGuesses)
                         {
                             IntPtr theGuesses = SudokuLibApi.GetNumGuesses();
-                            byte[] bytes = new byte[810];
-                            Marshal.Copy(theGuesses, bytes, 0, 810);
+                            byte[] bytes = new byte[SudokuLibApi.RESPONSE_SIZE];
+                            Marshal.Copy(theGuesses, bytes, 0, SudokuLibApi.RESPONSE_SIZE);
                             req.SetData(bytes);
                             req.SetQueueSize(myRequests.Count);
 
@@ -175,8 +189,8 @@ namespace SudokuInterface
                         else if (req.myRequestType == RequestType.GetNumInvalids)
                         {
                             IntPtr theGuesses = SudokuLibApi.GetNumInvalids();
-                            byte[] bytes = new byte[810];
-                            Marshal.Copy(theGuesses, bytes, 0, 810);
+                            byte[] bytes = new byte[SudokuLibApi.RESPONSE_SIZE];
+                            Marshal.Copy(theGuesses, bytes, 0, SudokuLibApi.RESPONSE_SIZE);
                             req.SetData(bytes);
                             req.SetQueueSize(myRequests.Count);
 
@@ -189,8 +203,8 @@ namespace SudokuInterface
                         else if (req.myRequestType == RequestType.GetBestScore)
                         {
                             IntPtr theBestScore = SudokuLibApi.GetBestScore();
-                            byte[] bytes = new byte[810];
-                            Marshal.Copy(theBestScore, bytes, 0, 810);
+                            byte[] bytes = new byte[SudokuLibApi.RESPONSE_SIZE];
+                            Marshal.Copy(theBestScore, bytes, 0, SudokuLibApi.RESPONSE_SIZE);
                             req.SetData(bytes);
                             req.SetQueueSize(myRequests.Count);
 
@@ -203,10 +217,23 @@ namespace SudokuInterface
                         else if (req.myRequestType == RequestType.GetNumSurrenders)
                         {
                             IntPtr theBestScore = SudokuLibApi.GetNumSurrenders();
-                            byte[] bytes = new byte[810];
-                            Marshal.Copy(theBestScore, bytes, 0, 810);
+                            byte[] bytes = new byte[SudokuLibApi.RESPONSE_SIZE];
+                            Marshal.Copy(theBestScore, bytes, 0, SudokuLibApi.RESPONSE_SIZE);
                             req.SetData(bytes);
                             req.SetQueueSize(myRequests.Count);
+
+                            SolverFSM m = (SolverFSM)req.myRequester;
+                            if (m != null)
+                            {
+                                m.RequestResponse(req);
+                            }
+                        }
+                        else if (req.myRequestType == RequestType.Shutdown)
+                        {
+                            bool theResult = SudokuLibApi.Shutdown();
+                            req.SetData(theResult);
+                            req.SetQueueSize(myRequests.Count);
+
 
                             SolverFSM m = (SolverFSM)req.myRequester;
                             if (m != null)
