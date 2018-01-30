@@ -1,31 +1,38 @@
 #include "stdafx.h"
-#include "Solver.h"
-#include "Board.h"
-#include "DataManager.h"
+
 
 #include <thread>
 #include <time.h>
 
+#include "Solver.h"
+#include "Board.h"
+#include "SudokuManager.h"
+#include "Dispatcher.h"
+#include "TimerFactory.h"
+
+void Solver::Initialize()
+{
+	mySolverState = SolverState::READY;
+	std::function<void()> run_callback = std::bind(&Solver::Run, this);
+	TimerFactory::GetInst()->CreateTimer(run_callback, 100000, false, false);
+}
+
 void Solver::Run()
 {
-	std::lock_guard<std::mutex> guard(myMutex);
-
-	if (mySolverState == SolverState::READY)
-	{
-		mySolverState = SolverState::RUNNING;
-	}
+	mySolverState = SolverState::RUNNING;
 
 	if (!(myBoard->CheckValid()))
 	{
 		// I was created invalid. Bummer.
 		mySolverState = SolverState::INVALID;
-		DataManager<Solver>::GetInst()->RegisterCompld(this);
+		SudokuManager<bool>::GetInst()->RegisterCompld(mySolverState);
 		return;
 	}
 
-	if (DataManager<Solver>::GetInst()->GetSolvedYet())
+	if (SudokuManager<bool>::GetInst()->GetSolvedYet())
 	{
 		mySolverState = SolverState::SURRENDERED;
+		SudokuManager<bool>::GetInst()->RegisterCompld(mySolverState);
 		return;
 	}
 
@@ -62,7 +69,7 @@ void Solver::Run()
 	{
 		// After the reductions I ended up invalid.
 		mySolverState = SolverState::INVALID;
-		DataManager<Solver>::GetInst()->RegisterCompld(this);
+		SudokuManager<bool>::GetInst()->RegisterCompld(mySolverState);
 		return;
 	}
 	else if (myBoard->Solved())
@@ -74,8 +81,8 @@ void Solver::Run()
 
 		myBoard->CheckValid();
 
-		DataManager<Solver>::GetInst()->SetScore(myBoardState);
-		DataManager<Solver>::GetInst()->SolutionFound(this);
+		SudokuManager<bool>::GetInst()->SetScore(myBoardState);
+		SudokuManager<bool>::GetInst()->SolutionFound(myBoard);
 		
 		return;
 	}
@@ -86,11 +93,11 @@ void Solver::Run()
 			// Our reduction techniques have done as much as they can.
 			// Now we make a guess.
 
-			if (DataManager<Solver>::GetInst()->IsGuessingEnabled())
+			if (SudokuManager<bool>::GetInst()->IsGuessingEnabled())
 			{
 				mySolverState = SolverState::SURRENDERED;
-				DataManager<Solver>::GetInst()->RegisterCompld(this);
-				DataManager<Solver>::GetInst()->SetScore(myBoardState);
+				SudokuManager<bool>::GetInst()->RegisterCompld(mySolverState);
+				SudokuManager<bool>::GetInst()->SetScore(myBoardState);
 				MakeGuesses();
 				return;
 			}
@@ -98,17 +105,19 @@ void Solver::Run()
 			{
 				// This is as far as we can go without guessing, so tell the manager we are done.
 				mySolverState = SolverState::SOLVED;
-				DataManager<Solver>::GetInst()->SolutionFound(this);
+				SudokuManager<bool>::GetInst()->SolutionFound(myBoard);
 				return;
 			}
 		}
 		else
 		{
-			DataManager<Solver>::GetInst()->SetScore(myBoardState);
+			SudokuManager<bool>::GetInst()->SetScore(myBoardState);
+
 			std::function<void()> run_callback = std::bind(&Solver::Run, this);
-			myTimerClass* tc = new myTimerClass(run_callback);
-			thread* t = new thread(&myTimerClass::timer, tc, 100);
-			t->detach();
+			TimerFactory::GetInst()->CreateTimer(run_callback, 100000, false, false);
+			mySolverState = SolverState::READY;
+
+			return;
 		}
 	}
 }
@@ -137,8 +146,9 @@ void Solver::MakeGuesses()
 {
 	// Here is where we make our guesses. 
 	// If you think about it, making all the guesses for one square MUST
-	// produce the correct answer, so lets do that.
+	// produce the correct answer eventually, so lets do that.
 
+	bool finished = false;
 	for (int i = 1; i <= 9; ++i)
 	{
 		for (int j = 1; j <= 9; ++j)
@@ -149,19 +159,27 @@ void Solver::MakeGuesses()
 				{
 					if (myBoard->Contains(i,j,k))
 					{
+						SudokuManager<bool>::GetInst()->RegisterCompld(SolverState::INITIALIZING);
 						Board* B = new Board(*(myBoard));
 
 						B->SetSquareValue(i, j, k);
 						Solver* S = new Solver();
 						S->SetBoard(B);
-
-						DataManager<Solver>::GetInst()->addElement(S);
+						S->Initialize();
 					}
 				}
 
 				// One of these guys must be correct, so get outta here and let the solving continue.
-				return;
+				finished = true;
+				break;
 			}
 		}
+
+		if (finished == true)
+		{
+			break;
+		}
 	}
+
+	return;
 }

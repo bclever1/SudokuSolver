@@ -2,7 +2,7 @@
 #include "Square.h"
 #include <memory>
 #include <string>
-#include "DataManager.h"
+#include "Dispatcher.h"
 #include "SolverPair.h"
 
 
@@ -157,4 +157,12 @@ bitset<10>& Square::getValues()
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 	return myValues;
+}
+
+void Square::clear()
+{
+	for (int i = 1; i <= 9; ++i)
+	{
+		myValues[i] = 0;
+	}
 }
