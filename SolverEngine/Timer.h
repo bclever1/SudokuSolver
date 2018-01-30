@@ -1,25 +1,47 @@
 #pragma once
 
-#include "DataManager.h"
+#include "Macros.h"
+#include <functional>
+//#include "TimerFactory.h"
+#include <thread>
+#include <string>
 
-//template <typename W>
-class myTimerClass
+class Timer
 {
+	//friend class TimerFactory;
+
 public:
 
-	myTimerClass(std::function<void()>theCallback) : myCallback(theCallback)
+	explicit Timer(std::function<void()>theCallback, uint theTimer, std::thread::id theThread) : myCallback(theCallback), myTimer(theTimer), myThread(theThread), myWorkComplete(false)
 	{
-		
+
 	}
 
-	~myTimerClass() {}
-
-	void timer(int theTime)
+	Timer(const Timer& orig)
 	{
-		for (int i = 0; i < theTime; ++i) {}
-
-		myCallback();
+		myCallback = orig.myCallback;
+		myTimer = orig.myTimer;
+		myThread = orig.myThread;
+		myWorkComplete = orig.myWorkComplete;
 	}
+
+	~Timer()
+	{
+
+	}
+
+	void Start()
+	{
+		Run();
+	}
+
+private:
 
 	std::function<void()>myCallback;
+	uint myTimer;
+	std::thread::id myThread;
+	bool myWorkComplete;
+
+	void Run();
+
 };

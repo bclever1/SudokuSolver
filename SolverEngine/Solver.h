@@ -10,20 +10,30 @@ class Solver
 		enum SolverState {
 			ACTIVE,
 			READY,
+			INITIALIZING,
 			INVALID,
 			RUNNING,
             SURRENDERED,
 			SOLVED
 		};
 
-		explicit Solver() : myBoard(nullptr), mySolverState(SolverState::READY) 
+		Solver() : myBoard(nullptr), mySolverState(SolverState::INITIALIZING)
 		{
 		}
-		explicit Solver(const Solver& s) : myBoard(s.myBoard), mySolverState(s.mySolverState) 
+		Solver(const Solver& s) : myBoard(s.myBoard), mySolverState(s.mySolverState) 
 		{
 		}
+		Solver(Solver* s) : myBoard(s->myBoard), mySolverState(s->mySolverState)
+		{
+		}
+
+		//Solver(const std::shared_ptr<Solver>& s)
+	//	{
+	//	}
 		
 		~Solver() {}
+
+		void Initialize();
 
 		void Run();
 		
@@ -40,6 +50,7 @@ class Solver
 		void SetBoard(Board* theBoard) { myBoard = theBoard; }
 		Board* GetBoard() { return myBoard; }
 
+		void SetState(Solver::SolverState theState) { mySolverState = theState; }
 		Solver::SolverState GetState() { return mySolverState; }
 
 private:

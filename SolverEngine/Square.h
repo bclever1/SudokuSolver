@@ -37,16 +37,7 @@ public:
 	int GetRowNum() { return myRow; }
 	int GetColNum() { return myCol; }
 
-	static std::bitset<10>zero;
-	static std::bitset<10>one;
-	static std::bitset<10>two;
-	static std::bitset<10>three;
-	static std::bitset<10>four;
-	static std::bitset<10>five;
-	static std::bitset<10>six;
-	static std::bitset<10>seven;
-	static std::bitset<10>eight;
-	static std::bitset<10>nine;
+	void clear();
 
 private:
 

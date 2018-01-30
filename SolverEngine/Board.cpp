@@ -8,8 +8,8 @@
 
 #include "Board.h"
 #include "Square.h"
-#include "DataManager.h"
 #include "Solver.h"
+#include "SudokuManager.h"
 
 using namespace std;
 
@@ -101,7 +101,7 @@ Board::Board()
 #if DEBUG
 	my_size += sizeof(mySquares);
 	string the_msg = "Board size: " + std::to_string(my_size);
-	DataManager<Solver>::GetInst()->logMessage(the_msg);
+	SudokuManager<bool>::GetInst()->logMessage(the_msg);
 #endif
 
 
@@ -221,7 +221,7 @@ bool Board::Solved()
 void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-	DataManager<Solver>::GetInst()->logMessage("Here 1 in Board::Reduce...\n");
+	SudokuManager<bool>::GetInst()->logMessage("Here 1 in Board::Reduce...\n");
 
 	vector<Square*>* grpToReduce = nullptr;
 
@@ -277,14 +277,14 @@ void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 		}
 	}
 
-	DataManager<Solver>::GetInst()->logMessage("Leaving Board::Reduce...\n");
+	SudokuManager<bool>::GetInst()->logMessage("Leaving Board::Reduce...\n");
 }
 
 
 void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-	DataManager<Solver>::GetInst()->logMessage("Here 1 in Board::RemoveStrandedSingles...\n");
+	SudokuManager<bool>::GetInst()->logMessage("Here 1 in Board::RemoveStrandedSingles...\n");
 
 	vector<Square*>* v = nullptr;
 
@@ -346,7 +346,7 @@ void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theIt
 		}
 	}
 
-	DataManager<Solver>::GetInst()->logMessage("Leaving Board::RemoveStrandedSingles...\n");
+	SudokuManager<bool>::GetInst()->logMessage("Leaving Board::RemoveStrandedSingles...\n");
 }
 
 
@@ -354,7 +354,7 @@ void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 
-	DataManager<Solver>::GetInst()->logMessage("Here 1 in Board::RemoveNakedPairs...\n");
+	SudokuManager<bool>::GetInst()->logMessage("Here 1 in Board::RemoveNakedPairs...\n");
 
 	vector<Square*> v;
 
@@ -418,7 +418,7 @@ void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 		}
 	}
 
-	DataManager<Solver>::GetInst()->logMessage("Leaving Board::RemoveNakedPairs...\n");
+	SudokuManager<bool>::GetInst()->logMessage("Leaving Board::RemoveNakedPairs...\n");
 }
 
 
@@ -426,7 +426,7 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 
-	DataManager<Solver>::GetInst()->logMessage("Here 1 in Board::PointingPairs...\n");
+	SudokuManager<bool>::GetInst()->logMessage("Here 1 in Board::PointingPairs...\n");
 
 	for (int reducer = 1; reducer <= 9; ++reducer)
 	{
@@ -521,13 +521,11 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 		}
 	}
 
-	DataManager<Solver>::GetInst()->logMessage("Leaving Board::PointingPairs...\n");
+	SudokuManager<bool>::GetInst()->logMessage("Leaving Board::PointingPairs...\n");
 }
 
 int Board::GetBoardState()
 {
-	std::lock_guard<std::mutex> guard(myMutex);
-
 	int result = 0;
 
 	for (int i = 1; i <= 9; ++i)
@@ -623,7 +621,7 @@ Board::Board(Board& b)
 	my_size += sizeof(mySquares);
 
 	string the_msg = "Board size: " + std::to_string(my_size);
-	DataManager<Solver>::GetInst()->logMessage(the_msg);
+	SudokuManager<bool>::GetInst()->logMessage(the_msg);
 }
 
 struct validityChecker
@@ -786,4 +784,26 @@ bool Board::Contains(int row, int col, int theval)
 int Board::GetSquareCount(int row, int col)
 {
 	return mySquares[row][col]->getCount();
+}
+
+void Board::Reset()
+{
+	for (int r = 1; r <= 9; ++r)
+	{
+		for (int c = 1; c <= 9; ++c)
+		{
+			mySquares[r][c]->clear();
+		}
+	}
+}
+Board& Board::operator=(const Board& orig)
+{
+	for (int r = 1; r <= 9; ++r)
+	{
+		for (int c = 1; c <= 9; ++c)
+		{
+			mySquares[r][c]->copyValues(orig.mySquares[r][c]->getValues());
+		}
+	}
+	return *this;
 }

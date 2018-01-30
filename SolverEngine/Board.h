@@ -76,6 +76,11 @@ public:
 	/* Does square contain the value? */
 	bool Contains(int row, int col, int theval);
 
+	/* Clear out all values */
+	void Reset();
+
+	Board& operator=(const Board& orig);
+
 private:
 
 	Square* mySquares[10][10];
