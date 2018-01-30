@@ -53,14 +53,21 @@ public:
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
 
+		while (myData.size() > 0)
+		{
+			myData.pop_back();
+		}
+
 		std::function<void()> run_callback = std::bind(&Dispatcher::Run, this);
-		TimerFactory::GetInst()->CreateTimer(run_callback, 50000, true, false);
+		TimerFactory::GetInst()->CreateTimer(run_callback, 50000, true);
 	}
 
 	/* Process the elements in my list */
 	void Run()
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
+
+		//TimerFactory::GetInst()->Clear();
 
 		if (myData.size() > 0)
 		{
@@ -70,7 +77,7 @@ public:
 		}
 
 		std::function<void()> run_callback = std::bind(&Dispatcher::Run, this);
-		TimerFactory::GetInst()->CreateTimer(run_callback, 50000, true, false);
+		TimerFactory::GetInst()->CreateTimer(run_callback, 50000, true);
 	}
 
 	/* Add an element to my list */

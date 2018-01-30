@@ -31,7 +31,10 @@ class Solver
 	//	{
 	//	}
 		
-		~Solver() {}
+		~Solver()
+		{
+			delete myBoard;
+		}
 
 		void Initialize();
 

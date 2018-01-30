@@ -8,37 +8,41 @@
 #include <memory>
 #include <list>
 
-#include "Timer.h"
+#include "Solver.h"
 #include "Macros.h"
 
 using namespace std;
 
-class TimerFactory
+class SolverFactory
 {
 private:
 
-	static TimerFactory* my_instance;
+	static SolverFactory* my_instance;
 	static std::once_flag my_once_flag;
 	std::mutex myMutex;
 	std::list<thread*> myThreads;
 	std::list<thread::id> myCompletedThreads;
 	bool myTerminated;
 
-	TimerFactory()
+	SolverFactory()
 	{
 		my_instance = this;
 		myTerminated = true;
 	}
 
-	static void CreateTimerOnThread(std::function<void()>theCallback, uint theTimer, bool theImmediate);
-	void Clear();
+	void Clear() {};
 
 public:
 
-	static TimerFactory* GetInst()
+	void CreateSolver(Board* theBoard)
 	{
-		std::call_once(TimerFactory::my_once_flag, []() {new TimerFactory(); });
-		return TimerFactory::my_instance;
+
+	}
+
+	static SolverFactory* GetInst()
+	{
+		std::call_once(SolverFactory::my_once_flag, []() {new SolverFactory(); });
+		return SolverFactory::my_instance;
 	}
 
 	void myFcn()
@@ -48,20 +52,12 @@ public:
 		// Do something...
 	}
 
-	void CreateTimer(std::function<void()>theCallback, uint theTimer, bool theImmediate);
-	void TimerFired(std::thread::id theThreadId, Timer* t);
-
-	void Terminate()
-	{
-		std::lock_guard<std::mutex> guard(myMutex);
-		myTerminated = true;
-		Clear();
-	}
+	
 
 	void Initialize()
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
-		myTerminated = false;
+		
 		Clear();
 	}
 };

@@ -6,12 +6,12 @@
 TimerFactory* TimerFactory::my_instance = nullptr;
 std::once_flag TimerFactory::my_once_flag;
 
-void TimerFactory::CreateTimerOnThread(std::function<void()>theCallback, uint theTimer, bool immediate)
+void TimerFactory::CreateTimerOnThread(std::function<void()>theCallback, uint theTimer, bool theImmediate)
 {
 	Timer* tc = new Timer(theCallback, theTimer, std::this_thread::get_id());
 	//std::unique_ptr<Timer> p = std::make_unique<Timer>(*tc);
 
-	if (immediate)
+	if (theImmediate)
 	{
 		tc->Start();
 	}
@@ -23,16 +23,29 @@ void TimerFactory::CreateTimerOnThread(std::function<void()>theCallback, uint th
 
 void TimerFactory::TimerFired(std::thread::id theThreadId, Timer* t)
 {
-	delete t;
+	std::lock_guard<std::mutex> guard(myMutex);
 
+	delete t;
 	myCompletedThreads.push_back(theThreadId);
 
 	// We can't join and delete the thread in this method because it's called from the thread we are trying to delete.
 }
 
-void TimerFactory::CreateTimer(std::function<void()>theCallback, uint theTimer, bool immediate, bool join)
+void TimerFactory::CreateTimer(std::function<void()>theCallback, uint theInterval, bool theImmediate)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
+	if (myTerminated == true)
+	{
+		return;
+	}
+
+	thread* t = new thread(&TimerFactory::CreateTimerOnThread, theCallback, theInterval, theImmediate);
+	myThreads.push_back(t);
+}
+
+void TimerFactory::Clear()
+{
+	//std::lock_guard<std::mutex> guard(myMutex);
 
 	bool found = false;
 
@@ -60,7 +73,4 @@ void TimerFactory::CreateTimer(std::function<void()>theCallback, uint theTimer, 
 			break;
 		}
 	}
-
-	thread* t = new thread(&TimerFactory::CreateTimerOnThread, theCallback, theTimer, immediate);
-	myThreads.push_back(t);
 }

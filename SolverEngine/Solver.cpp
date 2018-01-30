@@ -14,7 +14,8 @@ void Solver::Initialize()
 {
 	mySolverState = SolverState::READY;
 	std::function<void()> run_callback = std::bind(&Solver::Run, this);
-	TimerFactory::GetInst()->CreateTimer(run_callback, 100000, false, false);
+	TimerFactory::GetInst()->CreateTimer(run_callback, 100000, false);
+	SudokuManager<bool>::GetInst()->RegisterNewSolver(this);
 }
 
 void Solver::Run()
@@ -114,7 +115,7 @@ void Solver::Run()
 			SudokuManager<bool>::GetInst()->SetScore(myBoardState);
 
 			std::function<void()> run_callback = std::bind(&Solver::Run, this);
-			TimerFactory::GetInst()->CreateTimer(run_callback, 100000, false, false);
+			TimerFactory::GetInst()->CreateTimer(run_callback, 100000, false);
 			mySolverState = SolverState::READY;
 
 			return;
@@ -159,10 +160,10 @@ void Solver::MakeGuesses()
 				{
 					if (myBoard->Contains(i,j,k))
 					{
-						SudokuManager<bool>::GetInst()->RegisterCompld(SolverState::INITIALIZING);
+						//SudokuManager<bool>::GetInst()->RegisterCompld(SolverState::INITIALIZING);
 						Board* B = new Board(*(myBoard));
-
 						B->SetSquareValue(i, j, k);
+
 						Solver* S = new Solver();
 						S->SetBoard(B);
 						S->Initialize();

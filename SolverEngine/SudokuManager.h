@@ -4,6 +4,10 @@
 #include <mutex>
 #include <fstream>
 #include <string>
+#include <list>
+
+#include "Board.h"
+#include "Solver.h"
 
 using namespace std;
 
@@ -23,17 +27,12 @@ private:
 	uint bestScore;
 	uint numSurrenders;
 	Board mySolvedBoard;
+	list<Solver*>mySolvers;
 
 	SudokuManager()
 	{
 		my_instance = this;
-
-		guessingEnabled = true;
-		solutionFound = false;
-		numGuesses = 0;
-		numInvalids = 0;
-		bestScore = 100000;
-		numSurrenders = 0;
+		Initialize();
 	}
 
 public:
@@ -51,18 +50,7 @@ public:
 		// Do something...
 	}
 
-	void Initialize()
-	{
-		std::lock_guard<std::mutex> guard(myMutex);
-
-		guessingEnabled = true;
-		solutionFound = false;
-		numGuesses = 0;
-		numInvalids = 0;
-		bestScore = 100000;
-		numSurrenders = 0;
-		mySolvedBoard.Reset();
-	}
+	void Initialize();
 
 	void logMessage(std::string theMsg)
 	{
@@ -72,18 +60,6 @@ public:
 			std::ofstream outfile("C:\\TestCases\\sudoku_debug.txt", ios::app);
 			outfile << theMsg << endl;
 		}
-	}
-
-	void Reset()
-	{
-		std::lock_guard<std::mutex> guard(myMutex);
-
-		guessingEnabled = true;
-		solutionFound = false;
-		numGuesses = 0;
-		numInvalids = 0;
-		bestScore = 100000;
-		numSurrenders = 0;
 	}
 
 	bool GetSolvedYet()
@@ -97,6 +73,7 @@ public:
 		std::lock_guard<std::mutex> guard(myMutex);
 		solutionFound = true;
 		mySolvedBoard = *theSolvedBoard;
+		TimerFactory::GetInst()->Terminate();
 	}
 
 	void EnableGuessing()
@@ -170,9 +147,49 @@ public:
 
 	void RegisterCompld(Solver::SolverState theState)
 	{
+		std::lock_guard<std::mutex> guard(myMutex);
 		if (theState == Solver::SolverState::INVALID) ++numInvalids;
 		else if (theState == Solver::SolverState::SURRENDERED) ++numSurrenders;
 		else if (theState == Solver::SolverState::INITIALIZING) ++numGuesses;
+	}
+	
+	unsigned long GetActiveSolvers()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		if (numActiveSolvers == 0)
+		{
+			if (!solutionFound)
+			{
+				TimerFactory::GetInst()->Terminate();
+			}
+		}
+		return numActiveSolvers;
+	}
+
+	void RegisterNewSolver(Solver* S)
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+
+		mySolvers.push_back(S);
+		++numGuesses;
+	}
+
+	bool Shutdown()
+	{
+		std::lock_guard<std::mutex> guard(myMutex);
+		TimerFactory::GetInst()->Terminate();
+		TimerFactory::GetInst()->Initialize();
+		Dispatcher<Timer>::GetInst()->Reset();
+
+		while (mySolvers.size() > 0)
+		{
+			auto temp = (*mySolvers.begin());
+			mySolvers.erase(mySolvers.begin());
+			delete temp;
+		}
+
+		return true;
 	}
 };
 
