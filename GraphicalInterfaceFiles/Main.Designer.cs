@@ -225,6 +225,7 @@
             this.o_sqr_7_7 = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.resetHelpButton = new System.Windows.Forms.Button();
+            this.copyBoard = new System.Windows.Forms.Button();
             this.i_block_1_1.SuspendLayout();
             this.o_block_1_1.SuspendLayout();
             this.i_block_1_2.SuspendLayout();
@@ -260,7 +261,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(229, 750);
+            this.label1.Location = new System.Drawing.Point(208, 751);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(394, 31);
             this.label1.TabIndex = 9;
@@ -270,7 +271,7 @@
             // 
             this.solveButton.BackColor = System.Drawing.Color.PeachPuff;
             this.solveButton.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.solveButton.Location = new System.Drawing.Point(204, 859);
+            this.solveButton.Location = new System.Drawing.Point(111, 860);
             this.solveButton.Name = "solveButton";
             this.solveButton.Size = new System.Drawing.Size(122, 88);
             this.solveButton.TabIndex = 1;
@@ -282,7 +283,7 @@
             // 
             this.clearButton.BackColor = System.Drawing.Color.PeachPuff;
             this.clearButton.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.clearButton.Location = new System.Drawing.Point(332, 859);
+            this.clearButton.Location = new System.Drawing.Point(240, 860);
             this.clearButton.Name = "clearButton";
             this.clearButton.Size = new System.Drawing.Size(122, 88);
             this.clearButton.TabIndex = 3;
@@ -2827,6 +2828,7 @@
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.BurlyWood;
+            this.groupBox1.Controls.Add(this.copyBoard);
             this.groupBox1.Controls.Add(this.resetHelpButton);
             this.groupBox1.Controls.Add(this.manualInputBox);
             this.groupBox1.Controls.Add(this.label1);
@@ -2871,13 +2873,25 @@
             // 
             this.resetHelpButton.BackColor = System.Drawing.Color.PeachPuff;
             this.resetHelpButton.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.resetHelpButton.Location = new System.Drawing.Point(460, 860);
+            this.resetHelpButton.Location = new System.Drawing.Point(516, 860);
             this.resetHelpButton.Name = "resetHelpButton";
             this.resetHelpButton.Size = new System.Drawing.Size(140, 87);
             this.resetHelpButton.TabIndex = 33;
             this.resetHelpButton.Text = "Reset Guidance";
             this.resetHelpButton.UseVisualStyleBackColor = false;
             this.resetHelpButton.Click += new System.EventHandler(this.resetHelpButton_Click);
+            // 
+            // copyBoard
+            // 
+            this.copyBoard.BackColor = System.Drawing.Color.PeachPuff;
+            this.copyBoard.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.copyBoard.Location = new System.Drawing.Point(369, 861);
+            this.copyBoard.Name = "copyBoard";
+            this.copyBoard.Size = new System.Drawing.Size(140, 87);
+            this.copyBoard.TabIndex = 34;
+            this.copyBoard.Text = "Copy to Clipboard";
+            this.copyBoard.UseVisualStyleBackColor = false;
+            this.copyBoard.Click += new System.EventHandler(this.copyBoard_Click);
             // 
             // Main
             // 
@@ -3130,6 +3144,7 @@
         private System.Windows.Forms.TextBox o_sqr_7_7;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button resetHelpButton;
+        private System.Windows.Forms.Button copyBoard;
     }
 }
 

@@ -678,5 +678,34 @@ namespace SudokuInterface
                 Guidance.dontShow[i] = false;
             }
         }
+
+        private void copyBoard_Click(object sender, EventArgs e)
+        {
+            string textData = "";
+
+            for (int i = 1; i <= 9; ++i)
+            {
+                for (int j = 1; j <= 9; ++j)
+                {
+                    if (myInputBoxes[i, j].Text == string.Empty)
+                    {
+                        textData += "0";
+                    }
+                    else
+                    {
+                        textData += myInputBoxes[i, j].Text;
+                    }
+
+                    if (!(i == 9 && j == 9))
+                    {
+                        textData += " ";
+                    }
+                }
+            }
+
+            // After this call, the data (string) is placed on the clipboard and tagged
+            // with a data format of "Text".
+            Clipboard.SetData(DataFormats.Text, (Object)textData);
+        }
     }
 }
