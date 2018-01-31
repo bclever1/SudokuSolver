@@ -17,6 +17,7 @@ I used this project to highlight the following subjects:
    e) memory management
    f) functors (function classes)
    g) finite state machines in both C# and C++
+   h) STL containers
 3) Algorithmic sudoku solving techniques.
 4) Advanced debugging in VS2017
 5) GitHub
