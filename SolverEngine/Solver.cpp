@@ -14,7 +14,7 @@ void Solver::Initialize()
 {
 	mySolverState = SolverState::READY;
 	std::function<void()> run_callback = std::bind(&Solver::Run, this);
-	TimerFactory::GetInst()->CreateTimer(run_callback, 250, false);
+	TimerFactory::GetInst()->CreateTimer(run_callback, 500, false);
 	SudokuManager<bool>::GetInst()->RegisterNewSolver(this);
 }
 
@@ -115,7 +115,7 @@ void Solver::Run()
 			SudokuManager<bool>::GetInst()->SetScore(myBoardState);
 
 			std::function<void()> run_callback = std::bind(&Solver::Run, this);
-			TimerFactory::GetInst()->CreateTimer(run_callback, 250, false);
+			TimerFactory::GetInst()->CreateTimer(run_callback, 500, false);
 			mySolverState = SolverState::READY;
 
 			return;

@@ -8,7 +8,7 @@
 
 void Timer::Run()
 {
-	std::chrono::milliseconds ms(myTimer);
+	std::chrono::nanoseconds ms(myTimer);
 
 	std::this_thread::sleep_for(ms);
 
