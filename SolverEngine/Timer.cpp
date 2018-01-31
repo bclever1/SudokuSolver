@@ -3,11 +3,14 @@
 #include "Timer.h"
 #include "TimerFactory.h"
 
+#include <thread>
+#include <chrono>
+
 void Timer::Run()
 {
-	//uint theNewTimer = myTimer * 100;
+	std::chrono::milliseconds ms(myTimer);
 
-	for (uint i = 0; i < myTimer; ++i) {}
+	std::this_thread::sleep_for(ms);
 
 	if (!(myCallback == nullptr))
 	{
