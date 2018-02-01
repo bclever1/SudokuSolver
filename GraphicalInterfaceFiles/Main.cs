@@ -24,15 +24,13 @@ namespace SudokuInterface
         Thread myAPIServiceThread;
         Thread myFSMThread;
 
-        List<Guidance> myGuidances;
-
         public Main()
         {
             InitializeComponent();
 
             try
             {
-                myGuidances = new List<Guidance>();
+                GuidanceManager.Initialize();
 
                 numGuesses.Text = "0";
                 lowestScoreLabel.Text = "0";
@@ -296,6 +294,8 @@ namespace SudokuInterface
                         SetControlBgColor(myInputBoxes[row, col], System.Drawing.Color.White);
                     }
                 }
+
+                clearButton.Select();
             }
             catch (Exception e)
             {
@@ -331,6 +331,7 @@ namespace SudokuInterface
         private void solveButton_Click(object sender, EventArgs e)
         {
             // Validate the board input, if it's good tickle the solver FSM.
+
             int numClues = 0;
 
             for (int i = 1; i <= 9; ++i)
@@ -532,7 +533,7 @@ namespace SudokuInterface
             }
 
             SetControlText(manualInputBox, string.Empty);
-            SetControlText(label1, "Fast entry... 0 for empty boxes.");
+            SetControlText(label1, "Fast board entry");
             SetControlText(numGuesses, "0");
             SetControlText(lowestScoreLabel, "0");
             SetControlText(surrenderCountLabel, "0");
@@ -622,28 +623,12 @@ namespace SudokuInterface
 
         private void manualInputBox_MouseHover(object sender, EventArgs e)
         {
-            if (Guidance.dontShow[2] == false)
-            {
-                string text = "This is the fast entry box. You may enter the values via keyboard but unknown squares require a 0 be provided.";
-                text += "You may also copy-and-paste a position from a text file into this box.";
-
-                Guidance em = new Guidance(text, 2);
-                myGuidances.Add(em);
-                em.Show();
-            }
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.FAST_ENTRY);
         }
 
         private void board_mouse_hover()
         {
-            if (Guidance.dontShow[1] == false)
-            {
-                string text = "You may enter the values by hand into the input board \n or use the fast entry box below.\n";
-                text += "To enter by hand use the mouse to click into the squares and then tab through them. \n Unknown squares may remain empty or will accept 0.";
-
-                Guidance em = new Guidance(text, 1);
-                myGuidances.Add(em);
-                em.Show();
-            }
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.BOARD_INPUT);
         }
 
         private void i_sqr_4_4_MouseHover(object sender, EventArgs e)
@@ -692,10 +677,7 @@ namespace SudokuInterface
 
         private void resetHelpButton_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < Guidance.dontShow.Count(); ++i)
-            {
-                Guidance.dontShow[i] = false;
-            }
+            GuidanceManager.ResetAllGuidances();
         }
 
         private void copyBoard_Click(object sender, EventArgs e)
@@ -727,65 +709,74 @@ namespace SudokuInterface
             Clipboard.SetData(DataFormats.Text, (Object)textData);
         }
 
-        private void lowestScoreLabel_MouseHover(object sender, EventArgs e)
-        {
-
-        }
-
         private void label4_MouseHover(object sender, EventArgs e)
         {
-            if (Guidance.dontShow[4] == false)
-            {
-                string text = "Guesses are generated when a solver can't make any more progress.";
-
-                Guidance em = new Guidance(text, 4);
-                myGuidances.Add(em);
-                em.Show();
-            }
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.GUESSES);
         }
 
         private void label5_MouseHover(object sender, EventArgs e)
         {
-            if (Guidance.dontShow[5] == false)
-            {
-                string text = "A solver surrenders and makes guesses when it can't make any more progress.";
-
-                Guidance em = new Guidance(text, 5);
-                myGuidances.Add(em);
-                em.Show();
-            }
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.SURRENDERS);
         }
 
         private void invalidLabel_MouseHover(object sender, EventArgs e)
         {
-            if (Guidance.dontShow[6] == false)
-            {
-                string text = "This is the number of dead ends in the solving process.";
-
-                Guidance em = new Guidance(text, 6);
-                myGuidances.Add(em);
-                em.Show();
-            }
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.DEAD_ENDS);
         }
 
         private void label6_MouseHover(object sender, EventArgs e)
         {
-            if (Guidance.dontShow[7] == false)
-            {
-                string text = "Best score shows the progress of the solving process. 405 means a solution has been found.";
-
-                Guidance em = new Guidance(text, 7);
-                myGuidances.Add(em);
-                em.Show();
-            }
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.BEST_SCORE);
         }
 
         private void groupBox1_MouseHover(object sender, EventArgs e)
         {
-            foreach (var guidance in myGuidances)
-            {
-                guidance.kill();
-            }
+            GuidanceManager.killAll();
+        }
+
+        private void o_sqr_4_4_MouseHover(object sender, EventArgs e)
+        {
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
+        }
+
+        private void o_sqr_4_5_MouseHover(object sender, EventArgs e)
+        {
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
+        }
+
+        private void o_sqr_4_6_MouseHover(object sender, EventArgs e)
+        {
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
+        }
+
+        private void o_sqr_5_4_MouseHover(object sender, EventArgs e)
+        {
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
+        }
+
+        private void o_sqr_5_6_MouseHover(object sender, EventArgs e)
+        {
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
+        }
+
+        private void o_sqr_5_5_MouseHover(object sender, EventArgs e)
+        {
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
+        }
+
+        private void o_sqr_6_4_MouseHover(object sender, EventArgs e)
+        {
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
+        }
+
+        private void o_sqr_6_5_MouseHover(object sender, EventArgs e)
+        {
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
+        }
+
+        private void o_sqr_6_6_MouseHover(object sender, EventArgs e)
+        {
+            GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
         }
     }
 }

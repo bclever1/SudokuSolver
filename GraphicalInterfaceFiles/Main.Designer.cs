@@ -32,15 +32,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.solveButton = new System.Windows.Forms.Button();
             this.clearButton = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
+            this.guessesLabel = new System.Windows.Forms.Label();
             this.numGuesses = new System.Windows.Forms.Label();
             this.exitButton = new System.Windows.Forms.Button();
-            this.label6 = new System.Windows.Forms.Label();
+            this.bestScoreLabel = new System.Windows.Forms.Label();
             this.lowestScoreLabel = new System.Windows.Forms.Label();
             this.invalidLabel = new System.Windows.Forms.Label();
             this.invalidCountLabel = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.label5 = new System.Windows.Forms.Label();
+            this.surrenderLabel = new System.Windows.Forms.Label();
             this.surrenderCountLabel = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.i_block_1_1 = new System.Windows.Forms.TableLayoutPanel();
@@ -261,11 +261,11 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(208, 751);
+            this.label1.Location = new System.Drawing.Point(296, 751);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(394, 31);
+            this.label1.Size = new System.Drawing.Size(178, 31);
             this.label1.TabIndex = 9;
-            this.label1.Text = "Fast board entry... 0 for unknown values";
+            this.label1.Text = "Fast board entry";
             // 
             // solveButton
             // 
@@ -291,16 +291,16 @@
             this.clearButton.UseVisualStyleBackColor = false;
             this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
             // 
-            // label4
+            // guessesLabel
             // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(857, 874);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(200, 31);
-            this.label4.TabIndex = 12;
-            this.label4.Text = "Number of guesses:";
-            this.label4.MouseHover += new System.EventHandler(this.label4_MouseHover);
+            this.guessesLabel.AutoSize = true;
+            this.guessesLabel.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guessesLabel.Location = new System.Drawing.Point(857, 874);
+            this.guessesLabel.Name = "guessesLabel";
+            this.guessesLabel.Size = new System.Drawing.Size(200, 31);
+            this.guessesLabel.TabIndex = 12;
+            this.guessesLabel.Text = "Number of guesses:";
+            this.guessesLabel.MouseHover += new System.EventHandler(this.label4_MouseHover);
             // 
             // numGuesses
             // 
@@ -324,16 +324,16 @@
             this.exitButton.UseVisualStyleBackColor = false;
             this.exitButton.Click += new System.EventHandler(this.exitButtonClick);
             // 
-            // label6
+            // bestScoreLabel
             // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(857, 928);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(125, 31);
-            this.label6.TabIndex = 14;
-            this.label6.Text = "Best score:";
-            this.label6.MouseHover += new System.EventHandler(this.label6_MouseHover);
+            this.bestScoreLabel.AutoSize = true;
+            this.bestScoreLabel.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bestScoreLabel.Location = new System.Drawing.Point(857, 928);
+            this.bestScoreLabel.Name = "bestScoreLabel";
+            this.bestScoreLabel.Size = new System.Drawing.Size(125, 31);
+            this.bestScoreLabel.TabIndex = 14;
+            this.bestScoreLabel.Text = "Best score:";
+            this.bestScoreLabel.MouseHover += new System.EventHandler(this.label6_MouseHover);
             // 
             // lowestScoreLabel
             // 
@@ -376,16 +376,16 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Results board";
             // 
-            // label5
+            // surrenderLabel
             // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(857, 766);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(228, 31);
-            this.label5.TabIndex = 18;
-            this.label5.Text = "Number of surrenders:";
-            this.label5.MouseHover += new System.EventHandler(this.label5_MouseHover);
+            this.surrenderLabel.AutoSize = true;
+            this.surrenderLabel.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.surrenderLabel.Location = new System.Drawing.Point(857, 766);
+            this.surrenderLabel.Name = "surrenderLabel";
+            this.surrenderLabel.Size = new System.Drawing.Size(228, 31);
+            this.surrenderLabel.TabIndex = 18;
+            this.surrenderLabel.Text = "Number of surrenders:";
+            this.surrenderLabel.MouseHover += new System.EventHandler(this.label5_MouseHover);
             // 
             // surrenderCountLabel
             // 
@@ -1659,6 +1659,7 @@
             this.o_sqr_6_6.Size = new System.Drawing.Size(60, 53);
             this.o_sqr_6_6.TabIndex = 8;
             this.o_sqr_6_6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.o_sqr_6_6.MouseHover += new System.EventHandler(this.o_sqr_6_6_MouseHover);
             // 
             // o_sqr_6_5
             // 
@@ -1671,6 +1672,7 @@
             this.o_sqr_6_5.Size = new System.Drawing.Size(59, 53);
             this.o_sqr_6_5.TabIndex = 7;
             this.o_sqr_6_5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.o_sqr_6_5.MouseHover += new System.EventHandler(this.o_sqr_6_5_MouseHover);
             // 
             // o_sqr_6_4
             // 
@@ -1683,6 +1685,7 @@
             this.o_sqr_6_4.Size = new System.Drawing.Size(59, 53);
             this.o_sqr_6_4.TabIndex = 6;
             this.o_sqr_6_4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.o_sqr_6_4.MouseHover += new System.EventHandler(this.o_sqr_6_4_MouseHover);
             // 
             // o_sqr_5_6
             // 
@@ -1695,6 +1698,7 @@
             this.o_sqr_5_6.Size = new System.Drawing.Size(60, 53);
             this.o_sqr_5_6.TabIndex = 5;
             this.o_sqr_5_6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.o_sqr_5_6.MouseHover += new System.EventHandler(this.o_sqr_5_6_MouseHover);
             // 
             // o_sqr_5_5
             // 
@@ -1707,6 +1711,7 @@
             this.o_sqr_5_5.Size = new System.Drawing.Size(59, 53);
             this.o_sqr_5_5.TabIndex = 4;
             this.o_sqr_5_5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.o_sqr_5_5.MouseHover += new System.EventHandler(this.o_sqr_5_5_MouseHover);
             // 
             // o_sqr_5_4
             // 
@@ -1719,6 +1724,7 @@
             this.o_sqr_5_4.Size = new System.Drawing.Size(59, 53);
             this.o_sqr_5_4.TabIndex = 3;
             this.o_sqr_5_4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.o_sqr_5_4.MouseHover += new System.EventHandler(this.o_sqr_5_4_MouseHover);
             // 
             // o_sqr_4_6
             // 
@@ -1731,6 +1737,7 @@
             this.o_sqr_4_6.Size = new System.Drawing.Size(60, 53);
             this.o_sqr_4_6.TabIndex = 2;
             this.o_sqr_4_6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.o_sqr_4_6.MouseHover += new System.EventHandler(this.o_sqr_4_6_MouseHover);
             // 
             // o_sqr_4_5
             // 
@@ -1743,6 +1750,7 @@
             this.o_sqr_4_5.Size = new System.Drawing.Size(59, 53);
             this.o_sqr_4_5.TabIndex = 1;
             this.o_sqr_4_5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.o_sqr_4_5.MouseHover += new System.EventHandler(this.o_sqr_4_5_MouseHover);
             // 
             // o_sqr_4_4
             // 
@@ -1755,6 +1763,7 @@
             this.o_sqr_4_4.Size = new System.Drawing.Size(59, 53);
             this.o_sqr_4_4.TabIndex = 0;
             this.o_sqr_4_4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.o_sqr_4_4.MouseHover += new System.EventHandler(this.o_sqr_4_4_MouseHover);
             // 
             // i_block_2_3
             // 
@@ -2856,15 +2865,15 @@
             this.groupBox1.Controls.Add(this.i_block_1_1);
             this.groupBox1.Controls.Add(this.groupBox3);
             this.groupBox1.Controls.Add(this.surrenderCountLabel);
-            this.groupBox1.Controls.Add(this.label5);
+            this.groupBox1.Controls.Add(this.surrenderLabel);
             this.groupBox1.Controls.Add(this.groupBox2);
             this.groupBox1.Controls.Add(this.invalidCountLabel);
             this.groupBox1.Controls.Add(this.invalidLabel);
             this.groupBox1.Controls.Add(this.lowestScoreLabel);
-            this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.bestScoreLabel);
             this.groupBox1.Controls.Add(this.exitButton);
             this.groupBox1.Controls.Add(this.numGuesses);
-            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.guessesLabel);
             this.groupBox1.Controls.Add(this.clearButton);
             this.groupBox1.Controls.Add(this.solveButton);
             this.groupBox1.Location = new System.Drawing.Point(12, -5);
@@ -2902,6 +2911,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ClientSize = new System.Drawing.Size(1545, 1011);
             this.Controls.Add(this.groupBox1);
             this.Name = "Main";
@@ -2956,15 +2966,15 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button solveButton;
         private System.Windows.Forms.Button clearButton;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label guessesLabel;
         private System.Windows.Forms.Label numGuesses;
         private System.Windows.Forms.Button exitButton;
-        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label bestScoreLabel;
         private System.Windows.Forms.Label lowestScoreLabel;
         private System.Windows.Forms.Label invalidLabel;
         private System.Windows.Forms.Label invalidCountLabel;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label surrenderLabel;
         private System.Windows.Forms.Label surrenderCountLabel;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TableLayoutPanel i_block_1_1;

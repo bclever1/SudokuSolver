@@ -86,6 +86,8 @@ namespace SudokuInterface
             myMainWindow.DisableExitButton();
 
             // Convert the user input to a byte array to send to the Sudoku API
+
+            // Just for fun let's make sure our board is valid
             byte[] myBytes = new byte[81];
 
             int byteIdx = 0;

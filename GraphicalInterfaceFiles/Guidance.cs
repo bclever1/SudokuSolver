@@ -12,24 +12,34 @@ namespace SudokuInterface
 {
     public partial class Guidance : Form
     {
-        public static bool [] dontShow = { false, false, false, false, false, false, false, false };
+        private GuidanceManager.guidanceType myType;
 
-        private int myMsgId;
-
-        public Guidance(string theMessage, int theMsgId)
+        public Guidance(string theMessage, GuidanceManager.guidanceType theType)
         {
             InitializeComponent();
             label1.Text = theMessage;
-            myMsgId = theMsgId;
+            myType = theType;
         }
 
         public void kill()
         {
-            if (dontShowCheckBox.Checked == true)
-            {
-                dontShow[myMsgId] = true;
-            }
             Close();
+        }
+
+        public GuidanceManager.guidanceType GetGuidanceType()
+        {
+            return myType;
+        }
+
+        private void Guidance_Leave(object sender, EventArgs e)
+        {
+            GuidanceManager.RemoveGuidance(myType);
+        }
+
+        private void dontShowCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            GuidanceManager.SetBlocked(myType, dontShowCheckBox.Checked);
+            GuidanceManager.RemoveGuidance(myType);
         }
     }
 }

@@ -52,6 +52,7 @@
     <Compile Include="Guidance.Designer.cs">
       <DependentUpon>Guidance.cs</DependentUpon>
     </Compile>
+    <Compile Include="GuidanceManager.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

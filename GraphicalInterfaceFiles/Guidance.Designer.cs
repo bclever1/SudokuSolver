@@ -52,6 +52,7 @@
             this.dontShowCheckBox.TabIndex = 2;
             this.dontShowCheckBox.Text = "Don\'t show me this again";
             this.dontShowCheckBox.UseVisualStyleBackColor = true;
+            this.dontShowCheckBox.CheckedChanged += new System.EventHandler(this.dontShowCheckBox_CheckedChanged);
             // 
             // Guidance
             // 
@@ -62,6 +63,7 @@
             this.Controls.Add(this.label1);
             this.Name = "Guidance";
             this.Text = "Guidance";
+            this.Leave += new System.EventHandler(this.Guidance_Leave);
             this.ResumeLayout(false);
             this.PerformLayout();
 
