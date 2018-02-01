@@ -1,6 +1,6 @@
 
 # SudokuSolver
-My bad ass sudoku solver
+My sudoku solver...
 
 Please download SudokuSolver.zip and extract anywhere.
 
