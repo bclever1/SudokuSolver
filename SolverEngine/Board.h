@@ -18,6 +18,9 @@ public:
 	~Board();
 
 	Board(Board& b);
+	Board(Board* b);
+
+	void BuildBoardStructure();
 
 	/* Return the state of square[i,j]... a summation of all its values */
 	int GetValue(int i, int j);

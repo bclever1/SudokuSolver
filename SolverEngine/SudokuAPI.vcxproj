@@ -150,13 +150,12 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="Macros.h" />
-    <ClInclude Include="SolverFactory.h" />
     <ClInclude Include="SolverPair.h" />
     <ClInclude Include="Dispatcher.h" />
     <ClInclude Include="Solver.h" />
     <ClInclude Include="Square.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="SudokuManager.h" />
+    <ClInclude Include="SolverFactory.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TimerFactory.h" />
@@ -173,7 +172,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SudokuAPI.cpp" />
-    <ClCompile Include="SudokuManager.cpp" />
+    <ClCompile Include="SolverFactory.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TimerFactory.cpp" />
   </ItemGroup>

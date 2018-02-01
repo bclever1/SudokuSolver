@@ -9,7 +9,7 @@
 #include "Board.h"
 #include "Square.h"
 #include "Solver.h"
-#include "SudokuManager.h"
+#include "SolverFactory.h"
 
 using namespace std;
 
@@ -31,77 +31,12 @@ Board::Board()
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 
-	int my_size = 0;
-
-	for (int i = 0; i <= 9; ++i)
-	{
-		for (int j = 0; j <= 9; ++j)
-		{
-			mySquares[i][j] = nullptr;
-		}
-	}
-
-	for (int i = 1; i <= 9; ++i)
-	{
-		for (int j = 1; j <= 9; ++j)
-		{
-			mySquares[i][j] = new Square(i, j);
-
-			myRows[i].push_back(mySquares[i][j]);
-			myColumns[j].push_back(mySquares[i][j]);
-
-			if (1 <= i && i <= 3)
-			{
-				if (1 <= j && j <= 3)
-				{
-					myBlocks[1].push_back(mySquares[i][j]);
-				}
-				if (4 <= j && j <= 6)
-				{
-					myBlocks[2].push_back(mySquares[i][j]);
-				}
-				if (7 <= j && j <= 9)
-				{
-					myBlocks[3].push_back(mySquares[i][j]);
-				}
-			}
-			if (4 <= i && i <= 6)
-			{
-				if (1 <= j && j <= 3)
-				{
-					myBlocks[4].push_back(mySquares[i][j]);
-				}
-				if (4 <= j && j <= 6)
-				{
-					myBlocks[5].push_back(mySquares[i][j]);
-				}
-				if (7 <= j && j <= 9)
-				{
-					myBlocks[6].push_back(mySquares[i][j]);
-				}
-			}
-			if (7 <= i && i <= 9)
-			{
-				if (1 <= j && j <= 3)
-				{
-					myBlocks[7].push_back(mySquares[i][j]);
-				}
-				if (4 <= j && j <= 6)
-				{
-					myBlocks[8].push_back(mySquares[i][j]);
-				}
-				if (7 <= j && j <= 9)
-				{
-					myBlocks[9].push_back(mySquares[i][j]);
-				}
-			}
-		}
-	}
+	BuildBoardStructure();
 
 #if DEBUG
 	my_size += sizeof(mySquares);
 	string the_msg = "Board size: " + std::to_string(my_size);
-	SudokuManager<bool>::GetInst()->logMessage(the_msg);
+	SolverFactory::GetInst()->logMessage(the_msg);
 #endif
 
 
@@ -221,7 +156,7 @@ bool Board::Solved()
 void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-	SudokuManager<bool>::GetInst()->logMessage("Here 1 in Board::Reduce...\n");
+	SolverFactory::GetInst()->logMessage("Here 1 in Board::Reduce...\n");
 
 	vector<Square*>* grpToReduce = nullptr;
 
@@ -277,14 +212,14 @@ void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 		}
 	}
 
-	SudokuManager<bool>::GetInst()->logMessage("Leaving Board::Reduce...\n");
+	SolverFactory::GetInst()->logMessage("Leaving Board::Reduce...\n");
 }
 
 
 void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-	SudokuManager<bool>::GetInst()->logMessage("Here 1 in Board::RemoveStrandedSingles...\n");
+	SolverFactory::GetInst()->logMessage("Here 1 in Board::RemoveStrandedSingles...\n");
 
 	vector<Square*>* v = nullptr;
 
@@ -346,7 +281,7 @@ void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theIt
 		}
 	}
 
-	SudokuManager<bool>::GetInst()->logMessage("Leaving Board::RemoveStrandedSingles...\n");
+	SolverFactory::GetInst()->logMessage("Leaving Board::RemoveStrandedSingles...\n");
 }
 
 
@@ -354,7 +289,7 @@ void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 
-	SudokuManager<bool>::GetInst()->logMessage("Here 1 in Board::RemoveNakedPairs...\n");
+	SolverFactory::GetInst()->logMessage("Here 1 in Board::RemoveNakedPairs...\n");
 
 	vector<Square*> v;
 
@@ -418,7 +353,7 @@ void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 		}
 	}
 
-	SudokuManager<bool>::GetInst()->logMessage("Leaving Board::RemoveNakedPairs...\n");
+	SolverFactory::GetInst()->logMessage("Leaving Board::RemoveNakedPairs...\n");
 }
 
 
@@ -426,7 +361,7 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 
-	SudokuManager<bool>::GetInst()->logMessage("Here 1 in Board::PointingPairs...\n");
+	SolverFactory::GetInst()->logMessage("Here 1 in Board::PointingPairs...\n");
 
 	for (int reducer = 1; reducer <= 9; ++reducer)
 	{
@@ -521,7 +456,7 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 		}
 	}
 
-	SudokuManager<bool>::GetInst()->logMessage("Leaving Board::PointingPairs...\n");
+	SolverFactory::GetInst()->logMessage("Leaving Board::PointingPairs...\n");
 }
 
 int Board::GetBoardState()
@@ -543,72 +478,7 @@ Board::Board(Board& b)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 
-	int my_size = 0;
-
-	for (int i = 0; i <= 9; ++i)
-	{
-		for (int j = 0; j <= 9; ++j)
-		{
-			mySquares[i][j] = nullptr;
-		}
-	}
-
-	for (int i = 1; i <= 9; ++i)
-	{
-		for (int j = 1; j <= 9; ++j)
-		{
-			mySquares[i][j] = new Square(i, j);
-
-			myRows[i].push_back(mySquares[i][j]);
-			myColumns[j].push_back(mySquares[i][j]);
-
-			if (1 <= i && i <= 3)
-			{
-				if (1 <= j && j <= 3)
-				{
-					myBlocks[1].push_back(mySquares[i][j]);
-				}
-				if (4 <= j && j <= 6)
-				{
-					myBlocks[2].push_back(mySquares[i][j]);
-				}
-				if (7 <= j && j <= 9)
-				{
-					myBlocks[3].push_back(mySquares[i][j]);
-				}
-			}
-			if (4 <= i && i <= 6)
-			{
-				if (1 <= j && j <= 3)
-				{
-					myBlocks[4].push_back(mySquares[i][j]);
-				}
-				if (4 <= j && j <= 6)
-				{
-					myBlocks[5].push_back(mySquares[i][j]);
-				}
-				if (7 <= j && j <= 9)
-				{
-					myBlocks[6].push_back(mySquares[i][j]);
-				}
-			}
-			if (7 <= i && i <= 9)
-			{
-				if (1 <= j && j <= 3)
-				{
-					myBlocks[7].push_back(mySquares[i][j]);
-				}
-				if (4 <= j && j <= 6)
-				{
-					myBlocks[8].push_back(mySquares[i][j]);
-				}
-				if (7 <= j && j <= 9)
-				{
-					myBlocks[9].push_back(mySquares[i][j]);
-				}
-			}
-		}
-	}
+	BuildBoardStructure();
 
 	for (int i = 1; i <= 9; ++i)
 	{
@@ -617,11 +487,22 @@ Board::Board(Board& b)
 			mySquares[i][j]->copyValues(b.mySquares[i][j]->getValues());
 		}
 	}
+}
 
-	my_size += sizeof(mySquares);
 
-	string the_msg = "Board size: " + std::to_string(my_size);
-	SudokuManager<bool>::GetInst()->logMessage(the_msg);
+Board::Board(Board* b)
+{
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	BuildBoardStructure();
+
+	for (int i = 1; i <= 9; ++i)
+	{
+		for (int j = 1; j <= 9; ++j)
+		{
+			mySquares[i][j]->copyValues(b->mySquares[i][j]->getValues());
+		}
+	}
 }
 
 struct validityChecker
@@ -638,6 +519,11 @@ bool Board::CheckValid()
 	clock_t start_run = clock();
 
 	bool theResult = true;
+
+	if (GetBoardState() < 405)
+	{
+		return false;
+	}
 
 	// If any row, column or block contains two or more singletons then invalid
 	{
@@ -806,4 +692,72 @@ Board& Board::operator=(const Board& orig)
 		}
 	}
 	return *this;
+}
+
+void Board::BuildBoardStructure()
+{
+	for (int i = 0; i <= 9; ++i)
+	{
+		for (int j = 0; j <= 9; ++j)
+		{
+			mySquares[i][j] = nullptr;
+		}
+	}
+
+	for (int i = 1; i <= 9; ++i)
+	{
+		for (int j = 1; j <= 9; ++j)
+		{
+			mySquares[i][j] = new Square(i, j);
+
+			myRows[i].push_back(mySquares[i][j]);
+			myColumns[j].push_back(mySquares[i][j]);
+
+			if (1 <= i && i <= 3)
+			{
+				if (1 <= j && j <= 3)
+				{
+					myBlocks[1].push_back(mySquares[i][j]);
+				}
+				if (4 <= j && j <= 6)
+				{
+					myBlocks[2].push_back(mySquares[i][j]);
+				}
+				if (7 <= j && j <= 9)
+				{
+					myBlocks[3].push_back(mySquares[i][j]);
+				}
+			}
+			if (4 <= i && i <= 6)
+			{
+				if (1 <= j && j <= 3)
+				{
+					myBlocks[4].push_back(mySquares[i][j]);
+				}
+				if (4 <= j && j <= 6)
+				{
+					myBlocks[5].push_back(mySquares[i][j]);
+				}
+				if (7 <= j && j <= 9)
+				{
+					myBlocks[6].push_back(mySquares[i][j]);
+				}
+			}
+			if (7 <= i && i <= 9)
+			{
+				if (1 <= j && j <= 3)
+				{
+					myBlocks[7].push_back(mySquares[i][j]);
+				}
+				if (4 <= j && j <= 6)
+				{
+					myBlocks[8].push_back(mySquares[i][j]);
+				}
+				if (7 <= j && j <= 9)
+				{
+					myBlocks[9].push_back(mySquares[i][j]);
+				}
+			}
+		}
+	}
 }

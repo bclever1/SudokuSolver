@@ -6,34 +6,37 @@
 
 #include "Solver.h"
 #include "Board.h"
-#include "SudokuManager.h"
+#include "SolverFactory.h"
 #include "Dispatcher.h"
 #include "TimerFactory.h"
+
+
+int Solver::DEBUG_SOLVER_COUNTER = 0;
 
 void Solver::Initialize()
 {
 	mySolverState = SolverState::READY;
 	std::function<void()> run_callback = std::bind(&Solver::Run, this);
 	TimerFactory::GetInst()->CreateTimer(run_callback, 500, false);
-	SudokuManager<bool>::GetInst()->RegisterNewSolver(this);
 }
 
 void Solver::Run()
 {
 	mySolverState = SolverState::RUNNING;
+	++myRunCounter;
 
 	if (!(myBoard->CheckValid()))
 	{
 		// I was created invalid. Bummer.
 		mySolverState = SolverState::INVALID;
-		SudokuManager<bool>::GetInst()->RegisterCompld(mySolverState);
+		SolverFactory::GetInst()->RegisterCompld(mySolverState);
 		return;
 	}
 
-	if (SudokuManager<bool>::GetInst()->GetSolvedYet())
+	if (SolverFactory::GetInst()->GetSolvedYet())
 	{
 		mySolverState = SolverState::SURRENDERED;
-		SudokuManager<bool>::GetInst()->RegisterCompld(mySolverState);
+		SolverFactory::GetInst()->RegisterCompld(mySolverState);
 		return;
 	}
 
@@ -70,7 +73,7 @@ void Solver::Run()
 	{
 		// After the reductions I ended up invalid.
 		mySolverState = SolverState::INVALID;
-		SudokuManager<bool>::GetInst()->RegisterCompld(mySolverState);
+		SolverFactory::GetInst()->RegisterCompld(mySolverState);
 		return;
 	}
 	else if (myBoard->Solved())
@@ -82,8 +85,8 @@ void Solver::Run()
 
 		myBoard->CheckValid();
 
-		SudokuManager<bool>::GetInst()->SetScore(myBoardState);
-		SudokuManager<bool>::GetInst()->SolutionFound(myBoard);
+		SolverFactory::GetInst()->SetScore(myBoardState);
+		SolverFactory::GetInst()->SolutionFound(&myBoard);
 		
 		return;
 	}
@@ -94,11 +97,11 @@ void Solver::Run()
 			// Our reduction techniques have done as much as they can.
 			// Now we make a guess.
 
-			if (SudokuManager<bool>::GetInst()->IsGuessingEnabled())
+			if (SolverFactory::GetInst()->IsGuessingEnabled())
 			{
 				mySolverState = SolverState::SURRENDERED;
-				SudokuManager<bool>::GetInst()->RegisterCompld(mySolverState);
-				SudokuManager<bool>::GetInst()->SetScore(myBoardState);
+				SolverFactory::GetInst()->RegisterCompld(mySolverState);
+				SolverFactory::GetInst()->SetScore(myBoardState);
 				MakeGuesses();
 				return;
 			}
@@ -106,13 +109,13 @@ void Solver::Run()
 			{
 				// This is as far as we can go without guessing, so tell the manager we are done.
 				mySolverState = SolverState::SOLVED;
-				SudokuManager<bool>::GetInst()->SolutionFound(myBoard);
+				SolverFactory::GetInst()->SolutionFound(&myBoard);
 				return;
 			}
 		}
 		else
 		{
-			SudokuManager<bool>::GetInst()->SetScore(myBoardState);
+			SolverFactory::GetInst()->SetScore(myBoardState);
 
 			std::function<void()> run_callback = std::bind(&Solver::Run, this);
 			TimerFactory::GetInst()->CreateTimer(run_callback, 500, false);
@@ -160,13 +163,12 @@ void Solver::MakeGuesses()
 				{
 					if (myBoard->Contains(i,j,k))
 					{
-						//SudokuManager<bool>::GetInst()->RegisterCompld(SolverState::INITIALIZING);
-						Board* B = new Board(*(myBoard));
-						B->SetSquareValue(i, j, k);
+						Board B = *myBoard;
+						B.SetSquareValue(i, j, k);
 
-						Solver* S = new Solver();
-						S->SetBoard(B);
-						S->Initialize();
+						int theBoardState = B.GetBoardState();
+
+						SolverFactory::GetInst()->CreateNewSolver(B);
 					}
 				}
 
