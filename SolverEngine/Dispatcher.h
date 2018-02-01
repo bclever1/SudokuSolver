@@ -59,7 +59,7 @@ public:
 		}
 
 		std::function<void()> run_callback = std::bind(&Dispatcher::Run, this);
-		TimerFactory::GetInst()->CreateTimer(run_callback, 50, true);
+		TimerFactory::GetInst()->CreateTimer(run_callback, MY_DISPATCHER_CLOCK_RATE, true);
 	}
 
 	/* Process the elements in my list */
@@ -77,7 +77,7 @@ public:
 		}
 
 		std::function<void()> run_callback = std::bind(&Dispatcher::Run, this);
-		TimerFactory::GetInst()->CreateTimer(run_callback, 50, true);
+		TimerFactory::GetInst()->CreateTimer(run_callback, MY_DISPATCHER_CLOCK_RATE, true);
 	}
 
 	/* Add an element to my list */
