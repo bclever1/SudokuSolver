@@ -4,8 +4,10 @@ My bad ass sudoku solver
 
 Please download SudokuSolver.zip and extract anywhere.
 
-This project is not meant to be the fastest solver in the world. It will get faster as I 
-add more solving techniques (which means less guessing), nor is it the prettiest (yet). 
+This project is not meant to be the fastest solver in the world, nor is it the prettiest. 
+It will get faster as I add more solving techniques (which means less guessing)  
+and it will get prettier when I have time. 
+
 I used this project to highlight the following subjects:
 
 1) Linking a C# graphical interface to a C++ code engine (DLL).
