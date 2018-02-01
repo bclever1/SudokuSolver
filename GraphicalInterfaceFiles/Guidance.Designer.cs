@@ -28,21 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.okButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.dontShowCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
-            // 
-            // okButton
-            // 
-            this.okButton.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.okButton.Location = new System.Drawing.Point(172, 499);
-            this.okButton.Name = "okButton";
-            this.okButton.Size = new System.Drawing.Size(75, 46);
-            this.okButton.TabIndex = 0;
-            this.okButton.Text = "OK";
-            this.okButton.UseVisualStyleBackColor = true;
-            this.okButton.Click += new System.EventHandler(this.okButton_Click);
             // 
             // label1
             // 
@@ -58,7 +46,7 @@
             // 
             this.dontShowCheckBox.AutoSize = true;
             this.dontShowCheckBox.Font = new System.Drawing.Font("Papyrus", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dontShowCheckBox.Location = new System.Drawing.Point(294, 510);
+            this.dontShowCheckBox.Location = new System.Drawing.Point(211, 507);
             this.dontShowCheckBox.Name = "dontShowCheckBox";
             this.dontShowCheckBox.Size = new System.Drawing.Size(230, 29);
             this.dontShowCheckBox.TabIndex = 2;
@@ -72,7 +60,6 @@
             this.ClientSize = new System.Drawing.Size(650, 640);
             this.Controls.Add(this.dontShowCheckBox);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.okButton);
             this.Name = "Guidance";
             this.Text = "Guidance";
             this.ResumeLayout(false);
@@ -81,8 +68,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button okButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox dontShowCheckBox;
     }

@@ -24,12 +24,16 @@ namespace SudokuInterface
         Thread myAPIServiceThread;
         Thread myFSMThread;
 
+        List<Guidance> myGuidances;
+
         public Main()
         {
             InitializeComponent();
 
             try
             {
+                myGuidances = new List<Guidance>();
+
                 numGuesses.Text = "0";
                 lowestScoreLabel.Text = "0";
                 surrenderCountLabel.Text = "0";
@@ -90,6 +94,8 @@ namespace SudokuInterface
                 i_block_3_1.BackColor = System.Drawing.Color.Wheat;
                 i_block_3_2.BackColor = System.Drawing.Color.Wheat;
                 i_block_3_3.BackColor = System.Drawing.Color.Wheat;
+
+                
             }
             catch (Exception e1)
             {
@@ -325,6 +331,8 @@ namespace SudokuInterface
         private void solveButton_Click(object sender, EventArgs e)
         {
             // Validate the board input, if it's good tickle the solver FSM.
+            int numClues = 0;
+
             for (int i = 1; i <= 9; ++i)
             {
                 for (int j = 1; j <= 9; ++j)
@@ -340,6 +348,7 @@ namespace SudokuInterface
                                 em.ShowDialog();
                                 return;
                             }
+                            ++numClues;
                         }
                     }
                     catch (Exception e1)
@@ -352,7 +361,15 @@ namespace SudokuInterface
                 }
             }
 
-           mySolverFSM.EventOccured(SolverFSM.transitionEvent.SOLVE_CLICKED, null);
+            if (numClues < 16)
+            {
+                string s = "A valid sudoku must have at least 16 clues.";
+                ErrorMessage em = new ErrorMessage(s);
+                em.ShowDialog();
+                return;
+            }
+
+            mySolverFSM.EventOccured(SolverFSM.transitionEvent.SOLVE_CLICKED, null);
         }
 
         //==================================================
@@ -611,7 +628,8 @@ namespace SudokuInterface
                 text += "You may also copy-and-paste a position from a text file into this box.";
 
                 Guidance em = new Guidance(text, 2);
-                em.ShowDialog();
+                myGuidances.Add(em);
+                em.Show();
             }
         }
 
@@ -623,7 +641,8 @@ namespace SudokuInterface
                 text += "To enter by hand use the mouse to click into the squares and then tab through them. \n Unknown squares may remain empty or will accept 0.";
 
                 Guidance em = new Guidance(text, 1);
-                em.ShowDialog();
+                myGuidances.Add(em);
+                em.Show();
             }
         }
 
@@ -706,6 +725,67 @@ namespace SudokuInterface
             // After this call, the data (string) is placed on the clipboard and tagged
             // with a data format of "Text".
             Clipboard.SetData(DataFormats.Text, (Object)textData);
+        }
+
+        private void lowestScoreLabel_MouseHover(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_MouseHover(object sender, EventArgs e)
+        {
+            if (Guidance.dontShow[4] == false)
+            {
+                string text = "Guesses are generated when a solver can't make any more progress.";
+
+                Guidance em = new Guidance(text, 4);
+                myGuidances.Add(em);
+                em.Show();
+            }
+        }
+
+        private void label5_MouseHover(object sender, EventArgs e)
+        {
+            if (Guidance.dontShow[5] == false)
+            {
+                string text = "A solver surrenders and makes guesses when it can't make any more progress.";
+
+                Guidance em = new Guidance(text, 5);
+                myGuidances.Add(em);
+                em.Show();
+            }
+        }
+
+        private void invalidLabel_MouseHover(object sender, EventArgs e)
+        {
+            if (Guidance.dontShow[6] == false)
+            {
+                string text = "This is the number of dead ends in the solving process.";
+
+                Guidance em = new Guidance(text, 6);
+                myGuidances.Add(em);
+                em.Show();
+            }
+        }
+
+        private void label6_MouseHover(object sender, EventArgs e)
+        {
+            if (Guidance.dontShow[7] == false)
+            {
+                string text = "Best score shows the progress of the solving process. 405 means a solution has been found.";
+
+                Guidance em = new Guidance(text, 7);
+                myGuidances.Add(em);
+                em.Show();
+            }
+        }
+
+        private void groupBox1_MouseHover(object sender, EventArgs e)
+        {
+            foreach (var guidance in myGuidances)
+            {
+                guidance.kill();
+            }
         }
     }
 }

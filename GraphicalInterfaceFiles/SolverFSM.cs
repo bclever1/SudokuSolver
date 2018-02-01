@@ -55,6 +55,7 @@ namespace SudokuInterface
             myFSM[(int)solverState.EXITING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(IgnoreEvent);
             myFSM[(int)solverState.END_CHECKING_VALID, (int)transitionEvent.CLEAR_CLICKED] = new myDelegate(STATE_CLEARING);
             myFSM[(int)solverState.END_CHECKING_VALID, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
+            myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
 
             myState = solverState.IDLE;
             myResponseCounter = 0;

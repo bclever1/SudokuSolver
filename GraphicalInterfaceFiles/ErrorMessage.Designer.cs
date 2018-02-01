@@ -64,6 +64,7 @@
             this.Name = "ErrorMessage";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Error message";
+            this.TopMost = true;
             this.ResumeLayout(false);
 
         }

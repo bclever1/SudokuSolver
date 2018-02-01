@@ -224,8 +224,8 @@
             this.o_sqr_7_8 = new System.Windows.Forms.TextBox();
             this.o_sqr_7_7 = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.resetHelpButton = new System.Windows.Forms.Button();
             this.copyBoard = new System.Windows.Forms.Button();
+            this.resetHelpButton = new System.Windows.Forms.Button();
             this.i_block_1_1.SuspendLayout();
             this.o_block_1_1.SuspendLayout();
             this.i_block_1_2.SuspendLayout();
@@ -295,17 +295,18 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(854, 776);
+            this.label4.Location = new System.Drawing.Point(857, 874);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(200, 31);
             this.label4.TabIndex = 12;
             this.label4.Text = "Number of guesses:";
+            this.label4.MouseHover += new System.EventHandler(this.label4_MouseHover);
             // 
             // numGuesses
             // 
             this.numGuesses.AutoSize = true;
             this.numGuesses.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numGuesses.Location = new System.Drawing.Point(1126, 776);
+            this.numGuesses.Location = new System.Drawing.Point(1137, 874);
             this.numGuesses.Name = "numGuesses";
             this.numGuesses.Size = new System.Drawing.Size(136, 31);
             this.numGuesses.TabIndex = 13;
@@ -327,17 +328,18 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(854, 844);
+            this.label6.Location = new System.Drawing.Point(857, 928);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(125, 31);
             this.label6.TabIndex = 14;
             this.label6.Text = "Best score:";
+            this.label6.MouseHover += new System.EventHandler(this.label6_MouseHover);
             // 
             // lowestScoreLabel
             // 
             this.lowestScoreLabel.AutoSize = true;
             this.lowestScoreLabel.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lowestScoreLabel.Location = new System.Drawing.Point(1126, 844);
+            this.lowestScoreLabel.Location = new System.Drawing.Point(1137, 928);
             this.lowestScoreLabel.Name = "lowestScoreLabel";
             this.lowestScoreLabel.Size = new System.Drawing.Size(133, 31);
             this.lowestScoreLabel.TabIndex = 15;
@@ -347,17 +349,18 @@
             // 
             this.invalidLabel.AutoSize = true;
             this.invalidLabel.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.invalidLabel.Location = new System.Drawing.Point(854, 881);
+            this.invalidLabel.Location = new System.Drawing.Point(857, 820);
             this.invalidLabel.Name = "invalidLabel";
             this.invalidLabel.Size = new System.Drawing.Size(153, 31);
             this.invalidLabel.TabIndex = 16;
             this.invalidLabel.Text = "Invalid boards:";
+            this.invalidLabel.MouseHover += new System.EventHandler(this.invalidLabel_MouseHover);
             // 
             // invalidCountLabel
             // 
             this.invalidCountLabel.AutoSize = true;
             this.invalidCountLabel.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.invalidCountLabel.Location = new System.Drawing.Point(1126, 881);
+            this.invalidCountLabel.Location = new System.Drawing.Point(1137, 820);
             this.invalidCountLabel.Name = "invalidCountLabel";
             this.invalidCountLabel.Size = new System.Drawing.Size(140, 31);
             this.invalidCountLabel.TabIndex = 17;
@@ -377,17 +380,18 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(854, 809);
+            this.label5.Location = new System.Drawing.Point(857, 766);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(228, 31);
             this.label5.TabIndex = 18;
             this.label5.Text = "Number of surrenders:";
+            this.label5.MouseHover += new System.EventHandler(this.label5_MouseHover);
             // 
             // surrenderCountLabel
             // 
             this.surrenderCountLabel.AutoSize = true;
             this.surrenderCountLabel.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.surrenderCountLabel.Location = new System.Drawing.Point(1126, 810);
+            this.surrenderCountLabel.Location = new System.Drawing.Point(1137, 766);
             this.surrenderCountLabel.Name = "surrenderCountLabel";
             this.surrenderCountLabel.Size = new System.Drawing.Size(172, 31);
             this.surrenderCountLabel.TabIndex = 19;
@@ -2868,18 +2872,7 @@
             this.groupBox1.Size = new System.Drawing.Size(1516, 1004);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
-            // 
-            // resetHelpButton
-            // 
-            this.resetHelpButton.BackColor = System.Drawing.Color.PeachPuff;
-            this.resetHelpButton.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.resetHelpButton.Location = new System.Drawing.Point(516, 860);
-            this.resetHelpButton.Name = "resetHelpButton";
-            this.resetHelpButton.Size = new System.Drawing.Size(140, 87);
-            this.resetHelpButton.TabIndex = 33;
-            this.resetHelpButton.Text = "Reset Guidance";
-            this.resetHelpButton.UseVisualStyleBackColor = false;
-            this.resetHelpButton.Click += new System.EventHandler(this.resetHelpButton_Click);
+            this.groupBox1.MouseHover += new System.EventHandler(this.groupBox1_MouseHover);
             // 
             // copyBoard
             // 
@@ -2892,6 +2885,18 @@
             this.copyBoard.Text = "Copy to Clipboard";
             this.copyBoard.UseVisualStyleBackColor = false;
             this.copyBoard.Click += new System.EventHandler(this.copyBoard_Click);
+            // 
+            // resetHelpButton
+            // 
+            this.resetHelpButton.BackColor = System.Drawing.Color.PeachPuff;
+            this.resetHelpButton.Font = new System.Drawing.Font("Papyrus", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.resetHelpButton.Location = new System.Drawing.Point(516, 860);
+            this.resetHelpButton.Name = "resetHelpButton";
+            this.resetHelpButton.Size = new System.Drawing.Size(140, 87);
+            this.resetHelpButton.TabIndex = 33;
+            this.resetHelpButton.Text = "Reset Guidance";
+            this.resetHelpButton.UseVisualStyleBackColor = false;
+            this.resetHelpButton.Click += new System.EventHandler(this.resetHelpButton_Click);
             // 
             // Main
             // 

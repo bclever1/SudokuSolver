@@ -12,7 +12,7 @@ namespace SudokuInterface
 {
     public partial class Guidance : Form
     {
-        public static bool [] dontShow = { false, false, false };
+        public static bool [] dontShow = { false, false, false, false, false, false, false, false };
 
         private int myMsgId;
 
@@ -23,7 +23,7 @@ namespace SudokuInterface
             myMsgId = theMsgId;
         }
 
-        private void okButton_Click(object sender, EventArgs e)
+        public void kill()
         {
             if (dontShowCheckBox.Checked == true)
             {
