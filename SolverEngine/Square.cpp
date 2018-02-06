@@ -4,6 +4,7 @@
 #include <string>
 #include "Dispatcher.h"
 #include "SolverPair.h"
+#include <tuple>
 
 
 Square::Square(int theRow, int theCol) : myRow(theRow), myCol(theCol)
@@ -66,21 +67,36 @@ void Square::removeAllExcept(int theval)
 	}
 }
 
-
 void Square::setValue(int theval)
 {
-	std::lock_guard<std::mutex> guard(myMutex);
-
 	if (theval != 0)
 	{
 		for (int i = 1; i <= 9; ++i)
 		{
-			myValues[i] = 0;
+			if (i != theval)
+			{
+				myValues[i] = 0;
+			}
 		}
+
 		myValues[theval] = 1;
 	}
 }
 
+void Square::setValues(tuple<int, int, int, int, int, int, int, int, int> theval)
+{
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	myValues[1] = get<0>(theval);
+	myValues[2] = get<1>(theval);
+	myValues[3] = get<2>(theval);
+	myValues[4] = get<3>(theval);
+	myValues[5] = get<4>(theval);
+	myValues[6] = get<5>(theval);
+	myValues[7] = get<6>(theval);
+	myValues[8] = get<7>(theval);
+	myValues[9] = get<8>(theval);
+}
 
 int Square::getValue()
 {

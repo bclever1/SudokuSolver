@@ -8,16 +8,27 @@
 
 void Timer::Run()
 {
-	std::chrono::nanoseconds ms(myTimer);
-
-	std::this_thread::sleep_for(ms);
-
-	if (!(myCallback == nullptr))
+	if (myWorkComplete == false || isRecurring == true)
 	{
-		myCallback();
+		std::chrono::nanoseconds ms(myTimer);
+
+	    begin: std::this_thread::sleep_for(ms);
+
+		if (!(myCallback == nullptr))
+		{
+			myCallback();
+		}
+
+		myWorkComplete = true;
+
+		if (isRecurring)
+		{
+			goto begin;
+		}
+
+		if (!isImmediate)
+		{
+			TimerFactory::GetInst()->TimerFired(myThread, this);
+		}
 	}
-
-	myWorkComplete = true;
-
-	TimerFactory::GetInst()->TimerFired(myThread, this);
 }

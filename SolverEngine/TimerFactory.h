@@ -30,7 +30,7 @@ private:
 		myTerminated = true;
 	}
 
-	static void CreateTimerOnThread(std::function<void()>theCallback, uint theTimer, bool theImmediate);
+	static void CreateTimerOnThread(std::function<void()>theCallback, uint theTimer, bool theImmediate, bool recurring);
 	void Clear();
 
 public:
@@ -48,7 +48,7 @@ public:
 		// Do something...
 	}
 
-	void CreateTimer(std::function<void()>theCallback, uint theTimer, bool theImmediate);
+	void CreateTimer(std::function<void()>theCallback, uint theTimer, bool theImmediate, bool recurring);
 	void TimerFired(std::thread::id theThreadId, Timer* t);
 
 	void Terminate()

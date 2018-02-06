@@ -2,17 +2,22 @@
 #include <vector>
 #include <mutex>
 #include <bitset>
+#include "Macros.h"
+#include <list>
 
 using namespace std;
 
 class displayGrid;
 class Square;
 
+struct link;
+
 class Board
 {
 public:
 
 	typedef enum {Row, Column, Block} SquareGroupType_e;
+	enum solvingTechniques { ROW_REDUCE, COL_REDUCE, BLK_REDUCE, STRANDED_SINGLES, POINTING_PAIRS, NAKED_PAIRS, X_WING, COLORING, ALL };
 
 	Board();
 	~Board();
@@ -39,6 +44,11 @@ public:
 
 	/* Eliminate entries in rows and columns because a block has a certain configuration*/
 	void PointingPairs(Board::SquareGroupType_e theGrpType, int theItem);
+
+	/* Eliminate entries using the X-WING technique*/
+	void XWing();
+
+	void Coloring();
 
 	/* Returns an int that indicates the current state of the board. */
 	int GetBoardState();
@@ -84,8 +94,26 @@ public:
 
 	Board& operator=(const Board& orig);
 
+	void ResetColoringInfo();
+
+	void SetValues(int r, int c, tuple<int, int, int, int, int, int, int, int, int>);
+
+	void ColorSquares(Square* theRoot, list<std::shared_ptr<link>>& theLinks);
+
+	void DisplayForDebug();
+	
+
+	void GetBoardData(int* theData, int theStartIndex)
+	{
+		for (uint i = 0; i < solvingTechniques::ALL; ++i)
+		{
+			theData[i+theStartIndex] = myReduceCounters[i];
+		}
+	}
+
 private:
 
+	int myBoardId;
 	Square* mySquares[10][10];
 
 	vector<Square*> myBlocks[10];
@@ -94,6 +122,11 @@ private:
 
 	std::mutex myMutex;
 
+	uint myReduceCounters[solvingTechniques::ALL];
+
 	static int square_to_block_map[10][10];
+	static int MY_BOARD_COUNTER;
+
+	void CleanUpLinks(list<link*>& theLinks);
 
 };

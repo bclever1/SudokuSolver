@@ -6,3 +6,5 @@
 #define RESPONSE_SIZE 810
 #define MY_DISPATCHER_CLOCK_RATE 5
 #define MY_SOLVER_CLOCK_RATE (2 * MY_DISPATCHER_CLOCK_RATE)
+#define int9 tuple<int, int, int, int, int, int, int, int, int>
+#define MY_MSG_DISPATCHER_RATE (10 * MY_DISPATCHER_CLOCK_RATE)

@@ -25,6 +25,7 @@ private:
 	uint numInvalids;
 	uint bestScore;
 	uint numSurrenders;
+
 	Board mySolvedBoard;
 	list<std::unique_ptr<Solver>>mySolvers;
 
@@ -50,16 +51,6 @@ public:
 	}
 
 	void Initialize();
-
-	void logMessage(std::string theMsg)
-	{
-		if (MY_DEBUG)
-		{
-			std::lock_guard<std::mutex> guard(myMutex);
-			std::ofstream outfile("C:\\TestCases\\sudoku_debug.txt", ios::app);
-			outfile << theMsg << endl;
-		}
-	}
 
 	bool GetSolvedYet()
 	{

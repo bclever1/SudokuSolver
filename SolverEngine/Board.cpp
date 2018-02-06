@@ -10,8 +10,11 @@
 #include "Square.h"
 #include "Solver.h"
 #include "SolverFactory.h"
+#include "Message.h"
 
 using namespace std;
+
+int Board::MY_BOARD_COUNTER = 1;
 
 int Board::square_to_block_map[10][10] =
 {
@@ -31,15 +34,15 @@ Board::Board()
 {
 	std::lock_guard<std::mutex> guard(myMutex);
 
+	myBoardId = MY_BOARD_COUNTER;
+	++MY_BOARD_COUNTER;
+
 	BuildBoardStructure();
 
-#if DEBUG
-	my_size += sizeof(mySquares);
-	string the_msg = "Board size: " + std::to_string(my_size);
-	SolverFactory::GetInst()->logMessage(the_msg);
-#endif
-
-
+	for (int i = 0; i < solvingTechniques::ALL; ++i)
+	{
+		myReduceCounters[i] = 0;
+	}
 }
 
 Board::~Board()
@@ -156,21 +159,26 @@ bool Board::Solved()
 void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-	SolverFactory::GetInst()->logMessage("Here 1 in Board::Reduce...\n");
 
 	vector<Square*>* grpToReduce = nullptr;
+
+	solvingTechniques theTechnique;
 
 	if (theGrpType == Board::SquareGroupType_e::Row)
 	{
 		grpToReduce = &myRows[theItem];
+		theTechnique = solvingTechniques::ROW_REDUCE;
+
 	}
 	else if (theGrpType == Board::SquareGroupType_e::Column)
 	{
 		grpToReduce = &myColumns[theItem];
+		theTechnique = solvingTechniques::COL_REDUCE;
 	}
 	else if (theGrpType == Board::SquareGroupType_e::Block)
 	{
 		grpToReduce = &myBlocks[theItem];
+		theTechnique = solvingTechniques::BLK_REDUCE;
 	}
 
 	if (grpToReduce == nullptr) return;
@@ -204,22 +212,20 @@ void Board::Reduce(Board::SquareGroupType_e theGrpType, int theItem)
 					return;
 				}
 
-				if ((*itr1)->getCount() > 1)
+				if ((*itr1)->contains(reducer) && (*itr1)->getCount() > 1)
 				{
 					(*itr1)->remove(reducer);
+					++myReduceCounters[theTechnique];
 				}
 			}
 		}
 	}
-
-	SolverFactory::GetInst()->logMessage("Leaving Board::Reduce...\n");
 }
 
 
 void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-	SolverFactory::GetInst()->logMessage("Here 1 in Board::RemoveStrandedSingles...\n");
 
 	vector<Square*>* v = nullptr;
 
@@ -277,19 +283,16 @@ void Board::RemoveStrandedSingles(Board::SquareGroupType_e theGrpType, int theIt
 		if (theCount == 1 && theGoodSquare != nullptr)
 		{
 			// This is the only square that has the value.
+			myReduceCounters[solvingTechniques::STRANDED_SINGLES] += theGoodSquare->getCount() - 1;
 			theGoodSquare->removeAllExcept(reducer);
 		}
 	}
-
-	SolverFactory::GetInst()->logMessage("Leaving Board::RemoveStrandedSingles...\n");
 }
 
 
 void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-
-	SolverFactory::GetInst()->logMessage("Here 1 in Board::RemoveNakedPairs...\n");
 
 	vector<Square*> v;
 
@@ -342,26 +345,24 @@ void Board::RemoveNakedPairs(Board::SquareGroupType_e theGrpType, int theItem)
 						if ((*itr)->contains(pair1))
 						{
 							(*itr)->remove(pair1);
+							++myReduceCounters[solvingTechniques::NAKED_PAIRS];
 						}
 						if ((*itr)->contains(pair2))
 						{
 							(*itr)->remove(pair2);
+							++myReduceCounters[solvingTechniques::NAKED_PAIRS];
 						}
 					}
 				}
 			}
 		}
 	}
-
-	SolverFactory::GetInst()->logMessage("Leaving Board::RemoveNakedPairs...\n");
 }
 
 
 void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
-
-	SolverFactory::GetInst()->logMessage("Here 1 in Board::PointingPairs...\n");
 
 	for (int reducer = 1; reducer <= 9; ++reducer)
 	{
@@ -422,6 +423,7 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 						if ((*itx)->contains(reducer))
 						{
 							(*itx)->remove(reducer);
+							++myReduceCounters[solvingTechniques::POINTING_PAIRS];
 						}
 					}
 				}
@@ -449,14 +451,13 @@ void Board::PointingPairs(Board::SquareGroupType_e theGrpType, int theItem)
 						if ((*itx)->contains(reducer))
 						{
 							(*itx)->remove(reducer);
+							++myReduceCounters[solvingTechniques::POINTING_PAIRS];
 						}
 					}
 				}
 			}
 		}
 	}
-
-	SolverFactory::GetInst()->logMessage("Leaving Board::PointingPairs...\n");
 }
 
 int Board::GetBoardState()
@@ -474,9 +475,12 @@ int Board::GetBoardState()
 	return result;
 }
 
-Board::Board(Board& b)
+Board::Board(Board& orig)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
+
+	myBoardId = MY_BOARD_COUNTER;
+	++MY_BOARD_COUNTER;
 
 	BuildBoardStructure();
 
@@ -484,15 +488,23 @@ Board::Board(Board& b)
 	{
 		for (int j = 1; j <= 9; ++j)
 		{
-			mySquares[i][j]->copyValues(b.mySquares[i][j]->getValues());
+			mySquares[i][j]->copyValues(orig.mySquares[i][j]->getValues());
 		}
+	}
+
+	for (int i = 0; i < solvingTechniques::ALL; ++i)
+	{
+		myReduceCounters[i] = orig.myReduceCounters[i];
 	}
 }
 
 
-Board::Board(Board* b)
+Board::Board(Board* orig)
 {
 	std::lock_guard<std::mutex> guard(myMutex);
+
+	myBoardId = MY_BOARD_COUNTER;
+	++MY_BOARD_COUNTER;
 
 	BuildBoardStructure();
 
@@ -500,8 +512,13 @@ Board::Board(Board* b)
 	{
 		for (int j = 1; j <= 9; ++j)
 		{
-			mySquares[i][j]->copyValues(b->mySquares[i][j]->getValues());
+			mySquares[i][j]->copyValues(orig->mySquares[i][j]->getValues());
 		}
+	}
+
+	for (int i = 0; i < solvingTechniques::ALL; ++i)
+	{
+		myReduceCounters[i] = orig->myReduceCounters[i];
 	}
 }
 
@@ -622,6 +639,12 @@ void Board::RemoveValueFromSquare(int row, int col, int thePos)
 	mySquares[row][col]->remove(thePos);
 }
 
+void Board::SetValues(int r, int c, tuple<int, int, int, int, int, int, int, int, int> t)
+{
+	std::lock_guard<std::mutex> guard(myMutex);
+	mySquares[r][c]->setValues(t);
+}
+
 void Board::GetBlockRowComplement(int theBlock, int& compl_1, int& compl_2)
 {
 	switch (theBlock)
@@ -691,6 +714,12 @@ Board& Board::operator=(const Board& orig)
 			mySquares[r][c]->copyValues(orig.mySquares[r][c]->getValues());
 		}
 	}
+
+	for (int i = 0; i < solvingTechniques::ALL; ++i)
+	{
+		myReduceCounters[i] = orig.myReduceCounters[i];
+	}
+
 	return *this;
 }
 
@@ -760,4 +789,380 @@ void Board::BuildBoardStructure()
 			}
 		}
 	}
+}
+
+void Board::XWing()
+{
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	for (int reducer = 1; reducer <= 9; ++reducer)
+	{
+		// See if we can find an X-wing based on this number
+
+        // Go through all the X-configurations to see if the reducer MUST be in one of the four squares.
+		// If so, we can remove reducer from the other squares in the rows and columns.
+
+		vector<Square*> theXWing[10];
+
+		for (int row = 1; row <= 9; ++row)
+		{
+			for (int col = 1; col <= 9; ++col)
+			{
+				if (mySquares[row][col]->contains(reducer))
+				{
+					theXWing[row].push_back(mySquares[row][col]);
+				}
+			}
+		}
+
+		for (int row1 = 1; row1 <= 8; ++row1)
+		{
+			for (int row2 = row1 + 1; row2 <= 9; ++row2)
+			{
+				if (theXWing[row1].size() == 2 && theXWing[row2].size() == 2)
+				{
+					if ((theXWing[row1][0]->GetColNum() == theXWing[row2][0]->GetColNum()) &&
+						(theXWing[row1][1]->GetColNum() == theXWing[row2][1]->GetColNum()))
+					{
+						int col1 = theXWing[row1][0]->GetColNum();
+						int col2 = theXWing[row1][1]->GetColNum();
+
+						// Found one! The reducer can be removed from these columns
+						for (auto sqrItr = myColumns[col1].begin();
+							sqrItr != myColumns[col1].end();
+							++sqrItr)
+						{
+							if ((*sqrItr) != theXWing[row1][0] && (*sqrItr) != theXWing[row1][1] && (*sqrItr) != theXWing[row2][0] && (*sqrItr) != theXWing[row2][1])
+							{
+								if ((*sqrItr)->getCount() > 1 && (*sqrItr)->contains(reducer))
+								{
+									(*sqrItr)->remove(reducer);
+									++myReduceCounters[solvingTechniques::X_WING];
+								}
+							}
+						}
+
+						for (auto sqrItr1 = myColumns[col2].begin();
+							sqrItr1 != myColumns[col2].end();
+							++sqrItr1)
+						{
+							if ((*sqrItr1) != theXWing[row1][0] && (*sqrItr1) != theXWing[row1][1] && (*sqrItr1) != theXWing[row2][0] && (*sqrItr1) != theXWing[row2][1])
+							{
+								if ((*sqrItr1)->getCount() > 1 && (*sqrItr1)->contains(reducer))
+								{
+									(*sqrItr1)->remove(reducer);
+									++myReduceCounters[solvingTechniques::X_WING];
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+struct color
+{
+	bool onOff;
+	bool set;
+};
+
+struct link
+{
+	Square* from;
+	Square* to;
+	bool traversed;
+
+	~link()
+	{
+
+	}
+
+	bool operator==(const link& lhs)
+	{
+		if ((from == lhs.from && to == lhs.to) || (from == lhs.to && to == lhs.from)) return true;
+		return false;
+	}
+};
+
+void Board::Coloring()
+{
+	std::lock_guard<std::mutex> guard(myMutex);
+
+	if (myBoardId != 9) return;
+
+	for (int reducer = 2; reducer <= 2; ++reducer)
+	{
+		ResetColoringInfo();
+
+		list<std::shared_ptr<link>>myLinks;
+
+		vector<Square*>* v = 0;
+
+		for (int unitType = 1; unitType <= 3; ++unitType)
+		{
+			switch (unitType)
+			{
+			case 1: v = myRows; break;
+			case 2: v = myColumns; break;
+			case 3: v = myBlocks; break;
+			};
+			
+			for (int unitNum = 1; unitNum <= 9; ++unitNum)
+			{
+				vector<Square*>myLinkCandidates;
+
+				for (auto sqr = v[unitNum].begin();
+					sqr != v[unitNum].end();
+					++sqr)
+				{
+					if ((*sqr)->getCount() > 1 && (*sqr)->contains(reducer))
+					{
+						myLinkCandidates.push_back(*sqr);
+					}
+				}
+
+				if (myLinkCandidates.size() == 2)
+				{
+					// Form a chain out of these two members
+					std::shared_ptr<link> l = std::make_shared<link>(link({ myLinkCandidates[0], myLinkCandidates[1]}));
+
+					bool found = false;
+					for (auto linkItr = myLinks.begin();
+						linkItr != myLinks.end();
+						++linkItr)
+					{
+						if ((**linkItr == *l))
+						{
+							found = true;
+							break;
+						}
+					}
+					if (found == false)
+					{
+						myLinks.push_back(l);
+					}
+				}
+			}
+		}
+
+		bool done = false;
+
+		if (myLinks.size() > 0)
+		{
+			auto theRoot = (*myLinks.begin())->from;
+			theRoot->myColor = true;
+			theRoot->myColorSet = true;
+
+			ColorSquares(theRoot, myLinks);
+		}
+		
+		for (int unitType = 1; unitType <= 3; ++unitType)
+		{
+			switch (unitType)
+			{
+			case 1: v = myRows; break;
+			case 2: v = myColumns; break;
+			case 3: v = myBlocks; break;
+			};
+
+			for (int unitNum = 1; unitNum <= 9; ++unitNum)
+			{
+				vector<Square*>myReducerContainers;
+
+				for (auto sqr = v[unitNum].begin();
+					sqr != v[unitNum].end();
+					++sqr)
+				{
+					if ((*sqr)->getCount() > 1 && (*sqr)->contains(reducer))
+					{
+						myReducerContainers.push_back(*sqr);
+					}
+				}
+
+				int onColor = 0;
+				int offColor = 0;
+
+				for (auto sqr = myReducerContainers.begin();
+					sqr != myReducerContainers.end();
+					++sqr)
+				{
+					if ((*sqr)->myColorSet == true)
+					{
+						if ((*sqr)->myColor == true)
+						{
+							++onColor;
+						}
+						else
+						{
+							++offColor;
+						}
+					}
+				}
+				
+				if (onColor == 2 && offColor != 2)
+				{
+					// Find the ON squares and remove the reducer
+					for (auto sqr = myReducerContainers.begin();
+						sqr != myReducerContainers.end();
+						++sqr)
+					{
+						if ((*sqr)->myColorSet == true)
+						{
+							if ((*sqr)->myColor == true)
+							{
+								// Remove reducer from this square
+								(*sqr)->remove(reducer);
+								++myReduceCounters[solvingTechniques::COLORING];
+
+#if 0
+								string* theMessage = new string("(1) Removed: ");
+								*theMessage += std::to_string(reducer);
+								*theMessage += " from: [";
+								*theMessage += std::to_string((*sqr)->GetRowNum());
+								*theMessage += ",";
+								*theMessage += std::to_string((*sqr)->GetColNum());
+								*theMessage += "]\n";
+
+								Dispatcher<Message>::GetInst()->addElement(theMessage, true);
+#endif
+
+							}
+						}
+					}
+				}
+				else if (offColor == 2 && onColor != 2)
+				{
+					// Find the OFF squares and remove the reducer
+					for (auto sqr = myReducerContainers.begin();
+						sqr != myReducerContainers.end();
+						++sqr)
+					{
+						if ((*sqr)->myColorSet == true)
+						{
+							if ((*sqr)->myColor == false)
+							{
+								// Remove reducer from this square
+								(*sqr)->remove(reducer);
+								++myReduceCounters[solvingTechniques::COLORING];
+
+#if 0
+								string theMessage = "(2) Removed: ";
+								theMessage += std::to_string(reducer);
+								theMessage += " from: [";
+								theMessage += std::to_string((*sqr)->GetRowNum());
+								theMessage += ",";
+								theMessage += std::to_string((*sqr)->GetColNum());
+								theMessage += "]\n";
+
+								Dispatcher<Message>::GetInst()->addElement(theMessage, true);
+#endif
+
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void Board::ColorSquares(Square* theRoot, list<std::shared_ptr<link>>& theLinks)
+{
+	int linkIdx = 0;
+	for (auto linkItr = theLinks.begin();
+		linkItr != theLinks.end();
+		++linkItr)
+	{
+		++linkIdx;
+
+		if (theRoot->GetRowNum() == 2 && theRoot->GetColNum() == 5)
+		{
+			/*
+			string theMessage = "Root: ";
+			theMessage += "[";
+			theMessage += std::to_string(theRoot->GetRowNum());
+			theMessage += ",";
+			theMessage += std::to_string(theRoot->GetColNum());
+			theMessage += "] ";
+			theMessage += "scanning link: ";
+			theMessage += std::to_string(linkIdx);
+			theMessage += " [";
+			theMessage += std::to_string((*linkItr)->from->GetRowNum());
+			theMessage += ",";
+			theMessage += std::to_string((*linkItr)->from->GetColNum());
+			theMessage += "] to [";
+			theMessage += std::to_string((*linkItr)->to->GetRowNum());
+			theMessage += ",";
+			theMessage += std::to_string((*linkItr)->to->GetColNum());
+			theMessage += "] traversed: ";
+			theMessage += std::to_string((*linkItr)->traversed);
+			theMessage += "\n";
+
+			Dispatcher<Message>::GetInst()->addElement(theMessage, true);
+			*/
+		}
+
+			if ((*linkItr)->from == theRoot)
+			{
+				if (theRoot->myColorSet)
+				{
+					if ((*linkItr)->to->myColorSet == false)
+					{
+
+						(*linkItr)->to->myColor = !theRoot->myColor;
+						(*linkItr)->to->myColorSet = true;
+						(*linkItr)->traversed = true;
+
+						ColorSquares((*linkItr)->to, theLinks);
+					}
+				}
+			}
+			else if ((*linkItr)->to == theRoot)
+			{
+				if (theRoot->myColorSet)
+				{
+					if ((*linkItr)->from->myColorSet == false)
+					{
+
+						(*linkItr)->from->myColor = !theRoot->myColor;
+						(*linkItr)->from->myColorSet = true;
+						(*linkItr)->traversed = true;
+
+						ColorSquares((*linkItr)->from, theLinks);
+					}
+				}
+			}
+	}
+}
+
+void Board::ResetColoringInfo()
+{
+	for (int row = 1; row <= 9; ++row)
+	{
+		for (int col = 1; col <= 9; ++col)
+		{
+			mySquares[row][col]->myColor = false;
+			mySquares[row][col]->myColorSet = false;
+		}
+	}
+}
+
+void Board::DisplayForDebug()
+{
+	string theMessage = "";
+	for (int r = 1; r <= 9; ++r)
+	{
+		for (int c = 1; c <= 9; ++c)
+		{
+
+		}
+	}
+}
+
+void Board::CleanUpLinks(list<link*>& theLinks) 
+{
+	// It's possible our list got some duplicates
+	theLinks.unique();
 }

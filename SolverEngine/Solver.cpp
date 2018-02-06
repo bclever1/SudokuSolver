@@ -9,19 +9,43 @@
 #include "SolverFactory.h"
 #include "Dispatcher.h"
 #include "TimerFactory.h"
-
+#include "Message.h"
 
 int Solver::DEBUG_SOLVER_COUNTER = 0;
+
+Solver::Solver(unsigned char bytes[])
+{
+	myBoard = std::make_unique<Board>(new Board());
+
+	int byteIdx = 0;
+	for (int i = 1; i <= 9; ++i)
+	{
+		for (int j = 1; j <= 9; ++j)
+		{
+			myBoard->SetValue(i, j, bytes[byteIdx]);
+			++byteIdx;
+		}
+	}
+
+	myConstructorId = 1;
+	mySolverId = DEBUG_SOLVER_COUNTER++;
+	myRunCounter = 0;
+}
 
 void Solver::Initialize()
 {
 	mySolverState = SolverState::READY;
 	std::function<void()> run_callback = std::bind(&Solver::Run, this);
-	TimerFactory::GetInst()->CreateTimer(run_callback, MY_SOLVER_CLOCK_RATE, false);
+	TimerFactory::GetInst()->CreateTimer(run_callback, MY_SOLVER_CLOCK_RATE, false, false);
 }
 
 void Solver::Run()
 {
+	if (mySolverState == SolverState::SURRENDERED)
+	{
+		return;
+	}
+
 	mySolverState = SolverState::RUNNING;
 	++myRunCounter;
 
@@ -68,6 +92,9 @@ void Solver::Run()
 	{
 		PointingPairs(Board::SquareGroupType_e::Block, theItem);
 	}
+
+	myBoard->XWing();
+	myBoard->Coloring();
 
 	if (!(myBoard->CheckValid()))
 	{
@@ -118,7 +145,7 @@ void Solver::Run()
 			SolverFactory::GetInst()->SetScore(myBoardState);
 
 			std::function<void()> run_callback = std::bind(&Solver::Run, this);
-			TimerFactory::GetInst()->CreateTimer(run_callback, MY_SOLVER_CLOCK_RATE, false);
+			TimerFactory::GetInst()->CreateTimer(run_callback, MY_SOLVER_CLOCK_RATE, false, false);
 			mySolverState = SolverState::READY;
 
 			return;
@@ -165,8 +192,6 @@ void Solver::MakeGuesses()
 					{
 						Board B = *myBoard;
 						B.SetSquareValue(i, j, k);
-
-						int theBoardState = B.GetBoardState();
 
 						SolverFactory::GetInst()->CreateNewSolver(B);
 					}

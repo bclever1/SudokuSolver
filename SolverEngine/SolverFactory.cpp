@@ -4,7 +4,7 @@
 #include "Dispatcher.h"
 #include "Timer.h"
 #include "TimerFactory.h"
-
+#include "Message.h"
 
 SolverFactory* SolverFactory::my_instance = nullptr;
 std::once_flag SolverFactory::my_once_flag;
@@ -12,6 +12,10 @@ std::once_flag SolverFactory::my_once_flag;
 void SolverFactory::Initialize()
 {
 	std::lock_guard<std::mutex> guard(myMutex);
+
+	TimerFactory::GetInst()->Initialize();
+	Dispatcher<Timer>::GetInst()->Initialize();
+	Dispatcher<Message>::GetInst()->Initialize();
 
 	guessingEnabled = true;
 	solutionFound = false;
@@ -26,9 +30,6 @@ void SolverFactory::Initialize()
         // My elements are unique_ptrs, so no explicit delete for them!
 		mySolvers.erase(mySolvers.begin());
 	}
-
-	TimerFactory::GetInst()->Initialize();
-	Dispatcher<Timer>::GetInst()->Initialize();
 }
 
 void SolverFactory::CreateNewSolver(unsigned char theBoard[])
@@ -36,6 +37,7 @@ void SolverFactory::CreateNewSolver(unsigned char theBoard[])
 	std::lock_guard<std::mutex> guard(myMutex);
 
 	std::unique_ptr<Solver> newSolver = std::make_unique<Solver>(theBoard);
+
 	mySolvers.push_front(std::move(newSolver));
 	(*mySolvers.begin())->Initialize();
 

@@ -19,7 +19,8 @@ public:
 	Square(int theRow, int theCol);
 	~Square();
 
-	void setValue(int theValue);
+	void setValue(int theval);
+	void setValues(std::tuple<int, int, int, int, int, int, int, int, int> theValues);
 
 	bool contains(int theVal);
 	void remove(int theVal);
@@ -38,6 +39,9 @@ public:
 	int GetColNum() { return myCol; }
 
 	void clear();
+
+	bool myColor;
+	bool myColorSet;
 
 private:
 
