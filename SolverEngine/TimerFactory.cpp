@@ -15,7 +15,7 @@ void TimerFactory::CreateTimerOnThread(std::function<void()>theCallback, uint th
 	}
 	else
 	{
-		Timer* p = new Timer(theCallback, theTimer, std::this_thread::get_id(), theImmediate, recurring);
+		std::unique_ptr<Timer> p = std::make_unique<Timer>(Timer(theCallback, theTimer, std::this_thread::get_id(), theImmediate, recurring));
 		Dispatcher<Timer>::GetInst()->addElement(p);
 	}
 }

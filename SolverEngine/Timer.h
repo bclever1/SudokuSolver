@@ -9,7 +9,7 @@ class Timer
 {
 	friend class TimerFactory;
 
-protected:
+public:
 
 	explicit Timer(std::function<void()>theCallback, uint theTimer, std::thread::id theThread, bool theImmediate, bool recurring) : 
 		myCallback(theCallback), myTimer(theTimer), myThread(theThread), isImmediate(theImmediate), isRecurring(recurring), myWorkComplete(false)
@@ -31,7 +31,6 @@ public:
 
 	~Timer()
 	{
-		myTimer = 0;
 	}
 
 	void Start()

@@ -24,7 +24,7 @@ private:
 
 	static Dispatcher<T>* myInstance;
 	static std::once_flag myOnceFlag;
-	std::list<T*> myData;
+	std::list<std::unique_ptr<T>> myData;
 	std::mutex myMutex;
 
 	Dispatcher()
@@ -46,9 +46,9 @@ public:
 
 		while (myData.size() > 0)
 		{
-			T* temp = (*myData.begin());
+			std::unique_ptr<T> temp = std::move(*myData.begin());
 			myData.pop_front();
-			delete temp;
+			(*temp).Start();
 		}
 
 		std::function<void()> run_callback = std::bind(&Dispatcher::Run, this);
@@ -56,11 +56,11 @@ public:
 	}
 
 	/* Add an element to my list */
-	bool addElement(T* theElement)
+	bool addElement(std::unique_ptr<T>& theElement)
 	{
 		std::lock_guard<std::mutex> guard(myMutex);
 
-		myData.push_back(theElement);
+		myData.push_back(std::move(theElement));
 		return true;
 	}
 
@@ -90,10 +90,10 @@ public:
 
 		if (myData.size() > 0)
 		{
-			T* temp = (*myData.begin());
+			std::unique_ptr<T> temp = std::move(*myData.begin());
 			myData.pop_front();
-			temp->Start();
-			delete temp;
+			(*temp).Start();
+			//delete temp;
 		}
 	}
 };
