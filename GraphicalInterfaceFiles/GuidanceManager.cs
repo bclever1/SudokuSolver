@@ -128,5 +128,15 @@ namespace SudokuInterface
                 dontShow[i] = false;
             }
         }
+
+        public static void DisableAllGuidances()
+        {
+            killAll();
+
+            for (int i = 0; i < (int)guidanceType.LAST_TYPE; ++i)
+            {
+                dontShow[i] = true;
+            }
+        }
     }
 }

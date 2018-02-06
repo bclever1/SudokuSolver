@@ -10,7 +10,7 @@ namespace SudokuInterface
     public class SolverFSM
     {
         private enum solverState { IDLE, BEGIN_CHECKING_VALID, DISPLAYING_EXTRA_DATA, END_CHECKING_VALID, SOLVING, POLLING, BEGIN_DISPLAYING, COMPL_DISPLAYING, CLEARING, EXITING, CLOSING, ALL_STATES };
-        public enum transitionEvent { SOLVE_CLICKED, CLEAR_CLICKED, WAIT_FOR_RESPONSE, BOARD_NOT_SOLVED, BOARD_SOLVED, DATA_RCVD, EXIT_BUTTON_CLICKED, ALL_TXNS };
+        public enum transitionEvent { SOLVE_CLICKED, CLEAR_CLICKED, WAIT_FOR_RESPONSE, BOARD_NOT_SOLVED, BOARD_SOLVED, DATA_RCVD, EXIT_BUTTON_CLICKED, BOARD_IS_INVALID, CONTINUE, ALL_TXNS };
 
         public delegate void myDelegate(Request theReq);
         static myDelegate[,] myFSM;
@@ -26,36 +26,46 @@ namespace SudokuInterface
             myMainWindow = theMainWindow;
 
             myFSM = new myDelegate[(int)solverState.ALL_STATES, (int)transitionEvent.ALL_TXNS];
+
             myFSM[(int)solverState.IDLE, (int)transitionEvent.SOLVE_CLICKED] =new myDelegate(STATE_SOLVING);
             myFSM[(int)solverState.IDLE, (int)transitionEvent.CLEAR_CLICKED] = new myDelegate(STATE_CLEARING);
+            myFSM[(int)solverState.IDLE, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
+
             myFSM[(int)solverState.SOLVING, (int)transitionEvent.WAIT_FOR_RESPONSE] = new myDelegate(STATE_POLLING);
-            myFSM[(int)solverState.POLLING, (int)transitionEvent.BOARD_NOT_SOLVED] = new myDelegate(STATE_BEGIN_CHECK_VALID);
+
             myFSM[(int)solverState.POLLING, (int)transitionEvent.DATA_RCVD] = new myDelegate(DISPLAYING_EXTRA_DATA);
             myFSM[(int)solverState.POLLING, (int)transitionEvent.BOARD_SOLVED] = new myDelegate(STATE_BEGIN_DISPLAYING);
-            myFSM[(int)solverState.BEGIN_DISPLAYING, (int)transitionEvent.DATA_RCVD] = new myDelegate(STATE_COMPL_DISPLAY);
-            myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.DATA_RCVD] = new myDelegate(DISPLAYING_EXTRA_DATA);
-            myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.CLEAR_CLICKED] = new myDelegate(STATE_CLEARING);
-            myFSM[(int)solverState.CLEARING, (int)transitionEvent.SOLVE_CLICKED] = new myDelegate(STATE_SOLVING);
-            myFSM[(int)solverState.CLEARING, (int)transitionEvent.CLEAR_CLICKED] = new myDelegate(STATE_CLEARING);
             myFSM[(int)solverState.POLLING, (int)transitionEvent.CLEAR_CLICKED] = new myDelegate(STATE_CLEARING);
-            myFSM[(int)solverState.CLEARING, (int)transitionEvent.DATA_RCVD] = new myDelegate(IgnoreEvent);
-            myFSM[(int)solverState.CLEARING, (int)transitionEvent.BOARD_NOT_SOLVED] = new myDelegate(IgnoreEvent);
-            myFSM[(int)solverState.CLEARING, (int)transitionEvent.BOARD_SOLVED] = new myDelegate(IgnoreEvent);
-            myFSM[(int)solverState.BEGIN_CHECKING_VALID, (int)transitionEvent.DATA_RCVD] = new myDelegate(STATE_END_CHECK_VALID);
-            myFSM[(int)solverState.END_CHECKING_VALID, (int)transitionEvent.SOLVE_CLICKED] = new myDelegate(STATE_SOLVING);
-            myFSM[(int)solverState.END_CHECKING_VALID, (int)transitionEvent.DATA_RCVD] = new myDelegate(STATE_POLLING);
-            myFSM[(int)solverState.CLEARING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
-            myFSM[(int)solverState.EXITING, (int)transitionEvent.DATA_RCVD] = new myDelegate(STATE_CLOSING);
-            myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_CLOSING);
-            myFSM[(int)solverState.CLOSING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(IgnoreEvent);
-            myFSM[(int)solverState.IDLE, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
             myFSM[(int)solverState.POLLING, (int)transitionEvent.SOLVE_CLICKED] = new myDelegate(IgnoreEvent);
             myFSM[(int)solverState.POLLING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
+            myFSM[(int)solverState.POLLING, (int)transitionEvent.BOARD_IS_INVALID] = new myDelegate(STATE_INVALID);
+            myFSM[(int)solverState.POLLING, (int)transitionEvent.CONTINUE] = new myDelegate(STATE_POLLING);
+
+            myFSM[(int)solverState.BEGIN_DISPLAYING, (int)transitionEvent.DATA_RCVD] = new myDelegate(STATE_COMPL_DISPLAY);
+
+            myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.DATA_RCVD] = new myDelegate(DISPLAYING_EXTRA_DATA);
+            myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.CLEAR_CLICKED] = new myDelegate(STATE_CLEARING);
+            myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_CLOSING);
             myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.SOLVE_CLICKED] = new myDelegate(STATE_SOLVING);
-            myFSM[(int)solverState.EXITING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(IgnoreEvent);
+            myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
+
+            myFSM[(int)solverState.CLEARING, (int)transitionEvent.SOLVE_CLICKED] = new myDelegate(STATE_SOLVING);
+            myFSM[(int)solverState.CLEARING, (int)transitionEvent.CLEAR_CLICKED] = new myDelegate(STATE_CLEARING);
+            myFSM[(int)solverState.CLEARING, (int)transitionEvent.DATA_RCVD] = new myDelegate(IgnoreEvent);
+            myFSM[(int)solverState.CLEARING, (int)transitionEvent.BOARD_NOT_SOLVED] = new myDelegate(IgnoreEvent);
+            myFSM[(int)solverState.CLEARING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
+            myFSM[(int)solverState.CLEARING, (int)transitionEvent.BOARD_SOLVED] = new myDelegate(IgnoreEvent);
+
+            myFSM[(int)solverState.END_CHECKING_VALID, (int)transitionEvent.SOLVE_CLICKED] = new myDelegate(STATE_SOLVING);
+            myFSM[(int)solverState.END_CHECKING_VALID, (int)transitionEvent.DATA_RCVD] = new myDelegate(STATE_POLLING);
             myFSM[(int)solverState.END_CHECKING_VALID, (int)transitionEvent.CLEAR_CLICKED] = new myDelegate(STATE_CLEARING);
             myFSM[(int)solverState.END_CHECKING_VALID, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
-            myFSM[(int)solverState.COMPL_DISPLAYING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(STATE_EXITING);
+
+            myFSM[(int)solverState.EXITING, (int)transitionEvent.DATA_RCVD] = new myDelegate(STATE_CLOSING);
+            myFSM[(int)solverState.EXITING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(IgnoreEvent);
+
+            myFSM[(int)solverState.CLOSING, (int)transitionEvent.EXIT_BUTTON_CLICKED] = new myDelegate(IgnoreEvent);
+
 
             myState = solverState.IDLE;
             myResponseCounter = 0;
@@ -87,7 +97,6 @@ namespace SudokuInterface
 
             // Convert the user input to a byte array to send to the Sudoku API
 
-            // Just for fun let's make sure our board is valid
             byte[] myBytes = new byte[81];
 
             int byteIdx = 0;
@@ -97,7 +106,14 @@ namespace SudokuInterface
                 {
                     if (myMainWindow.myInputBoxes[i, j].Text != string.Empty)
                     {
-                        myBytes[byteIdx] = Convert.ToByte(Int32.Parse(myMainWindow.myInputBoxes[i, j].Text));
+                        if (myMainWindow.myInputBoxes[i, j].Text == "?")
+                        {
+                            myBytes[byteIdx] = Convert.ToByte(0);
+                        }
+                        else
+                        {
+                            myBytes[byteIdx] = Convert.ToByte(Int32.Parse(myMainWindow.myInputBoxes[i, j].Text));
+                        }
                         ++byteIdx;
                     }
                     else
@@ -111,7 +127,6 @@ namespace SudokuInterface
             // Call the Sudoko API to initialize the board
             SudokuLibApi.Reset();
             SudokuLibApi.Initialize(myBytes);
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.Solve));
 
             EventOccured(SolverFSM.transitionEvent.WAIT_FOR_RESPONSE, null);
         }
@@ -119,36 +134,58 @@ namespace SudokuInterface
         private void STATE_POLLING(Request theRequest)
         {
             myState = solverState.POLLING;
-            Thread.Sleep(100);
-
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetNumSurrenders));
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetNumInvalids));
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetBestScore));
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetNumGuesses));
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.IsSolved));
-            ++myResponseCounter;
+            
+            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetBoardData));
         }
 
         private void DISPLAYING_EXTRA_DATA(Request theRequest)
         {
             if (theRequest != null)
-            {
-                if (theRequest.myRequestType == RequestType.GetBestScore)
+            {            
+                if (theRequest.myRequestType == RequestType.GetBoardData)
                 {
-                    myMainWindow.SetBestScore(theRequest.GetByteData());
+                    myMainWindow.SetNumGuesses(theRequest.GetIntArrayData()[1].ToString());
+                    myMainWindow.SetInvalidCount(theRequest.GetIntArrayData()[2].ToString());
+                    myMainWindow.SetSurrenderCount(theRequest.GetIntArrayData()[3].ToString());
+                    myMainWindow.SetBestScore(theRequest.GetIntArrayData()[4].ToString());
+                    myMainWindow.SetRowReduce(theRequest.GetIntArrayData()[5].ToString());
+                    myMainWindow.SetColReduce(theRequest.GetIntArrayData()[6].ToString());
+                    myMainWindow.SetBlkReduce(theRequest.GetIntArrayData()[7].ToString());
+                    myMainWindow.SetStrandedSingles(theRequest.GetIntArrayData()[8].ToString());
+                    myMainWindow.SetPointingPairs(theRequest.GetIntArrayData()[9].ToString());
+                    myMainWindow.SetNakedPairs(theRequest.GetIntArrayData()[10].ToString());
+                    myMainWindow.SetXWing(theRequest.GetIntArrayData()[11].ToString());
+                    myMainWindow.SetSimpleChains(theRequest.GetIntArrayData()[12].ToString());
                 }
-                else if (theRequest.myRequestType == RequestType.GetNumGuesses)
+
+                if (theRequest.GetIntArrayData()[0] == 0)
                 {
-                    myMainWindow.SetNumGuesses(theRequest.GetByteData());
+                    // The position is not solved.
+                    int numGuesses = theRequest.GetIntArrayData()[1];
+                    int numInvalids = theRequest.GetIntArrayData()[2];
+                    int numSurrenders = theRequest.GetIntArrayData()[3];
+
+                    if (numGuesses == numInvalids + numSurrenders)
+                    {
+                        // All positions have either given up or become invalid.
+                        // Therefore the board itself must be invalid.
+                        EventOccured(SolverFSM.transitionEvent.BOARD_IS_INVALID, null);
+                    }
+                    else
+                    {
+                        // Just keep polling
+                        Thread.Sleep(100);
+                        EventOccured(SolverFSM.transitionEvent.CONTINUE, null);
+
+                    }
+
                 }
-                else if (theRequest.myRequestType == RequestType.GetNumInvalids)
+                else
                 {
-                    myMainWindow.SetInvalidCount(theRequest.GetByteData());
+                    // The position is solved.
+                    EventOccured(SolverFSM.transitionEvent.BOARD_SOLVED, null);
                 }
-                else if (theRequest.myRequestType == RequestType.GetNumSurrenders)
-                {
-                    myMainWindow.SetSurrenderCount(theRequest.GetByteData());
-                }
+
             }
         }
 
@@ -173,10 +210,7 @@ namespace SudokuInterface
             myMainWindow.DisplayResultsBoard(theRequest.GetByteData());
 
             myState = solverState.COMPL_DISPLAYING;
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetNumSurrenders));
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetNumInvalids));
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetBestScore));
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetNumGuesses));
+            
 
             myMainWindow.EnableClearButton();
             myMainWindow.EnableExitButton();
@@ -215,63 +249,36 @@ namespace SudokuInterface
             }
 
             else if (theRequest.myRequestType == RequestType.GetSolved ||
-                     theRequest.myRequestType == RequestType.GetNumGuesses ||
-                     theRequest.myRequestType == RequestType.GetBestScore ||
-                     theRequest.myRequestType == RequestType.GetNumInvalids ||
-                     theRequest.myRequestType == RequestType.GetNumSurrenders ||
-                     theRequest.myRequestType == RequestType.GetActiveSolvers ||
-                     theRequest.myRequestType == RequestType.Shutdown)
+                     theRequest.myRequestType == RequestType.Shutdown ||
+                     theRequest.myRequestType == RequestType.GetBoardData)
             {
                 EventOccured(transitionEvent.DATA_RCVD, theRequest);
             }
         }
 
-        private void STATE_BEGIN_CHECK_VALID(Request theRequest)
-        {
-            myState = solverState.BEGIN_CHECKING_VALID;
-            APIMonitor.Instance.NewRequest(new Request(this, RequestType.GetActiveSolvers));
-        }
-
-        private void STATE_END_CHECK_VALID(Request theRequest)
+        private void STATE_INVALID(Request theRequest)
         {
             myState = solverState.END_CHECKING_VALID;
 
-            var theResult = System.Text.Encoding.Default.GetString(theRequest.GetByteData()).ToString();
-
-            try
-            {
-                if (Int32.Parse(theResult) == 0)
-                {
-                    // The board is not solved and there are no active solvers. It must be invalid.
-                    ErrorMessage em = new ErrorMessage("This board is invalid.");
-                    em.ShowDialog();
-                    // EventOccured(SolverFSM.transitionEvent.WAIT_FOR_RESPONSE, null);
-                    myMainWindow.EnableClearButton();
-                    myMainWindow.EnableExitButton();
-                }
-                else
-                {
-                    EventOccured(SolverFSM.transitionEvent.DATA_RCVD, null);
-                }
-            }
-            catch(Exception e)
-            {
-                ErrorMessage em = new ErrorMessage(e.Message + " here in STATE_END_CHECK_VALID");
-                em.ShowDialog();
-                EventOccured(SolverFSM.transitionEvent.DATA_RCVD, null);
-            }
+            ErrorMessage em = new ErrorMessage("This board is invalid.");
+            em.ShowDialog();
+            myMainWindow.EnableClearButton();
+            myMainWindow.EnableExitButton();
         }
 
         private void STATE_EXITING(Request theRequest)
         {
+            myState = solverState.EXITING;
+
             if (myState != solverState.IDLE)
             {
 
                 APIMonitor.Instance.NewRequest(new Request(this, RequestType.Shutdown));
             }
-
-            myState = solverState.EXITING;
-            EventOccured(transitionEvent.DATA_RCVD, null);
+            else
+            {
+                EventOccured(transitionEvent.DATA_RCVD, null);
+            }
         }
 
         private void STATE_CLOSING(Request theRequest)

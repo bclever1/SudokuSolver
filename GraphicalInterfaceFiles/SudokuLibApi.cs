@@ -24,7 +24,7 @@ namespace SudokuInterface
         public static extern int GetBoardValue();
 
         [DllImport(@"SudokuAPI.dll", EntryPoint = "GetActiveSolvers", CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr GetActiveSolvers();
+        public static extern int GetActiveSolvers();
 
         [DllImport(@"SudokuAPI.dll", EntryPoint = "Solve", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Solve();
@@ -53,5 +53,7 @@ namespace SudokuInterface
         [DllImport(@"SudokuAPI.dll", EntryPoint = "Shutdown", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Shutdown();
 
+        [DllImport(@"SudokuAPI.dll", EntryPoint = "GetBoardData", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr GetBoardData();
     }
 }

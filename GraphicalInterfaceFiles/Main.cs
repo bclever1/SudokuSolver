@@ -340,7 +340,7 @@ namespace SudokuInterface
                 {
                     try
                     {
-                        if (myInputBoxes[i, j].Text != string.Empty)
+                        if (myInputBoxes[i, j].Text != string.Empty && myInputBoxes[i, j].Text != "?")
                         {
                             if (!(0 <= Int32.Parse(myInputBoxes[i, j].Text) && Int32.Parse(myInputBoxes[i, j].Text) <= 9))
                             {
@@ -467,7 +467,7 @@ namespace SudokuInterface
                 }
                 else if (myInputBoxes[rowIdx, colIdx].Text == theSquareData)
                 {
-                    SetControlBgColor(myResultsDisplay[rowIdx, colIdx], System.Drawing.Color.LightSlateGray);
+                    SetControlBgColor(myResultsDisplay[rowIdx, colIdx], System.Drawing.Color.LightGray);
                 }
             }
         }
@@ -486,11 +486,13 @@ namespace SudokuInterface
         // Process the events in the manual input box
         private void manualInputBox_TextChanged(object sender, EventArgs e)
         {
-            label1.Text = "Manual entry... 0 for empty boxes.";
+            label1.Text = "Manual entry... 0 or ? for unknown squares.";
 
             string[] s = manualInputBox.Text.Split(' ');
+
             int col = 1, row = 1;
-            foreach (string userEntry in s)
+
+            for (int i = 0; i < s.Count(); ++i)
             {
                 if (row > 9 || col > 9)
                 {
@@ -500,9 +502,30 @@ namespace SudokuInterface
                 {
                     label1.Text = s.Length + " entries specified";
 
-                    if (userEntry != "0")
+                    if (!(s[i] == "0" || s[i] == "?" || s[i] == "["))
                     {
-                        myInputBoxes[row, col].Text = userEntry;
+                        myInputBoxes[row, col].Text = s[i];
+                        SetControlBgColor(myInputBoxes[row, col], System.Drawing.Color.LightGray);
+                    }
+                    else if (s[i] == "[")
+                    {
+                        myInputBoxes[row, col].Text = string.Empty;
+                        ++i;
+                        while (i < s.Count() && s[i] != "]")
+                        {
+                            myInputBoxes[row, col].Text += s[i] + " ";
+                            ++i;
+                        }
+
+                        if (s[i] != "]")
+                        {
+                            myInputBoxes[row, col].Text += "]";
+                        }
+                    }
+                    else
+                    {
+                        myInputBoxes[row, col].Text = "?";
+                        SetControlBgColor(myInputBoxes[row, col], System.Drawing.Color.LimeGreen);
                     }
 
                     ++col;
@@ -522,16 +545,6 @@ namespace SudokuInterface
 
         public void ResetDisplay()
         {
-            for (int i = 1; i <= 9; ++i)
-            {
-                for (int j = 1; j <= 9; ++j)
-                {
-                    SetControlText(myInputBoxes[i, j], string.Empty);
-                    SetControlText(myResultsDisplay[i, j], string.Empty);
-                    SetControlBgColor(myResultsDisplay[i, j], System.Drawing.Color.White);
-                }
-            }
-
             SetControlText(manualInputBox, string.Empty);
             SetControlText(label1, "Fast board entry");
             SetControlText(numGuesses, "0");
@@ -539,27 +552,37 @@ namespace SudokuInterface
             SetControlText(surrenderCountLabel, "0");
             SetControlText(invalidCountLabel, "0");
             SetControlEnabled(clearButton, true);
+
+            for (int i = 1; i <= 9; ++i)
+            {
+                for (int j = 1; j <= 9; ++j)
+                {
+                    SetControlBgColor(myInputBoxes[i, j], System.Drawing.Color.White);
+                    SetControlText(myInputBoxes[i, j], string.Empty);
+                    SetControlText(myResultsDisplay[i, j], string.Empty);
+                    SetControlBgColor(myResultsDisplay[i, j], System.Drawing.Color.White);
+                }
+            }
         }
 
-        public void SetBestScore(byte[] theData)
+        public void SetBestScore(string theData)
         {
-            SetControlText(lowestScoreLabel, System.Text.Encoding.Default.GetString(theData));
+            SetControlText(lowestScoreLabel, theData);
         }
 
-        public void SetNumGuesses(byte[] theData)
+        public void SetNumGuesses(string theData)
         {
-            var theStr = System.Text.Encoding.Default.GetString(theData).ToString();
-            SetControlText(numGuesses, theStr);
+            SetControlText(numGuesses, theData);
         }
 
-        public void SetInvalidCount(byte[] theData)
+        public void SetInvalidCount(string theData)
         {
-            SetControlText(invalidCountLabel, System.Text.Encoding.Default.GetString(theData));
+            SetControlText(invalidCountLabel, theData);
         }
 
-        public void SetSurrenderCount(byte[] theData)
+        public void SetSurrenderCount(string theData)
         {
-            SetControlText(surrenderCountLabel, System.Text.Encoding.Default.GetString(theData));
+            SetControlText(surrenderCountLabel, theData);
         }
 
         public void DisableClearButton()
@@ -777,6 +800,51 @@ namespace SudokuInterface
         private void o_sqr_6_6_MouseHover(object sender, EventArgs e)
         {
             GuidanceManager.ProvideGuidance(GuidanceManager.guidanceType.OUTPUT_BOARD);
+        }
+
+        public void SetRowReduce(string theVal)
+        {
+            SetControlText(rowRedBox, theVal);
+        }
+
+        public void SetColReduce(string theVal)
+        {
+            SetControlText(colRedBox, theVal);
+        }
+
+        public void SetBlkReduce(string theVal)
+        {
+            SetControlText(blockRedBox, theVal);
+        }
+
+        public void SetStrandedSingles(string theVal)
+        {
+            SetControlText(strandedSinglesBox, theVal);
+        }
+
+        public void SetPointingPairs(string theVal)
+        {
+            SetControlText(pointingPairsBox, theVal);
+        }
+
+        public void SetNakedPairs(string theVal)
+        {
+            SetControlText(nakedPairsBox, theVal);
+        }
+
+        public void SetXWing(string theVal)
+        {
+            SetControlText(xWingBox, theVal);
+        }
+
+        public void SetSimpleChains(string theVal)
+        {
+            SetControlText(simpleChainsBox, theVal);
+        }
+
+        private void disableGuidanceButton_Click(object sender, EventArgs e)
+        {
+            GuidanceManager.DisableAllGuidances();
         }
     }
 }
