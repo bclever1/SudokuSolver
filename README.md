@@ -20,6 +20,7 @@ I used this project to highlight the following subjects:
    f) functors (function classes)
    g) finite state machines in both C# and C++
    h) STL containers
+   i) the std::tuple device 
 3) Algorithmic sudoku solving techniques.
-4) Advanced debugging in VS2017
+4) Advanced debugging in Visual Studio 2017
 5) GitHub
