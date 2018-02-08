@@ -41,7 +41,6 @@ void TimerFactory::CreateTimer(std::function<void()>theCallback, uint theInterva
 
 	if (recurring)
 	{
-		t->detach();
 		myThreads.push_back(t);
 	}
 
