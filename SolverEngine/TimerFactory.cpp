@@ -45,18 +45,6 @@ void TimerFactory::CreateTimer(std::function<void()>theCallback, uint theInterva
 		return;
 	}
 
-	//thread* t = new thread(&TimerFactory::CreateTimerOnThread, this, theCallback, theInterval, recurring);
-
-	//if (recurring)
-	//{
-	//	myThreads.push_back(t);
-	//}
-	//else
-	//{
-	//	t->join();
-	//}
-
-
 	if (recurring)
 	{
 		Timer* p = new Timer(theCallback, theInterval, std::this_thread::get_id(), recurring);
@@ -74,8 +62,6 @@ void TimerFactory::CreateTimer(std::function<void()>theCallback, uint theInterva
 
 void TimerFactory::Clear()
 {
-	//std::lock_guard<std::mutex> guard(myMutex);
-
 	bool found = false;
 
 	while (myCompletedThreads.size() > 0)

@@ -25,7 +25,7 @@ private:
 	static Dispatcher<T>* myInstance;
 	static std::once_flag myOnceFlag;
 	std::list<std::unique_ptr<T>> myData;
-	std::mutex myMutex[100];
+	std::recursive_mutex myMutex[1];
 
 	Dispatcher()
 	{
@@ -42,7 +42,7 @@ public:
 
 	virtual void Initialize()
 	{
-		std::lock_guard<std::mutex> guard(myMutex[0]);
+		std::lock_guard<std::recursive_mutex> guard(myMutex[0]);
 
 		while (myData.size() > 0)
 		{
@@ -58,7 +58,7 @@ public:
 	/* Add an element to my list */
 	bool addElement(std::unique_ptr<T>& theElement, std::thread::id theCaller)
 	{
-		std::lock_guard<std::mutex> guard(myMutex[1]);
+		std::lock_guard<std::recursive_mutex> guard(myMutex[0]);
 
 		myData.push_back(std::move(theElement));
 		return true;
@@ -67,7 +67,7 @@ public:
 	/* Just a pattern for future work */
 	void myFcn()
 	{
-		std::lock_guard<std::mutex> guard(myMutex[2]);
+		std::lock_guard<std::recursive_mutex> guard(myMutex[0]);
 
 		// Do something...
 	}
@@ -75,7 +75,7 @@ public:
 	/* Clear my list */
 	void Reset()
 	{
-		std::lock_guard<std::mutex> guard(myMutex[3]);
+		std::lock_guard<std::recursive_mutex> guard(myMutex[0]);
 
 		while (myData.size() > 0)
 		{
@@ -86,7 +86,7 @@ public:
 
 	virtual void Run()
 	{
-		std::lock_guard<std::mutex> guard(myMutex[4]);
+		std::lock_guard<std::recursive_mutex> guard(myMutex[0]);
 
 		if (myData.size() > 0)
 		{
