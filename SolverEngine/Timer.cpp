@@ -25,10 +25,9 @@ void Timer::Run()
 		{
 			goto begin;
 		}
-
-		if (!isImmediate)
-		{
-			TimerFactory::GetInst()->TimerFired(myThread, this);
-		}
+		//else
+		//{
+		//	TimerFactory::GetInst()->TimerFired(myThread, this);
+		//}
 	}
 }

@@ -11,8 +11,8 @@ class Timer
 
 public:
 
-	explicit Timer(std::function<void()>theCallback, uint theTimer, std::thread::id theThread, bool theImmediate, bool recurring) : 
-		myCallback(theCallback), myTimer(theTimer), myThread(theThread), isImmediate(theImmediate), isRecurring(recurring), myWorkComplete(false)
+	explicit Timer(std::function<void()>theCallback, uint theTimer, std::thread::id theThread, bool recurring) : 
+		myCallback(theCallback), myTimer(theTimer), myThread(theThread), isRecurring(recurring), myWorkComplete(false)
 	{
 
 	}
@@ -23,7 +23,6 @@ public:
 		myTimer = orig.myTimer;
 		myThread = orig.myThread;
 		myWorkComplete = orig.myWorkComplete;
-		isImmediate = orig.isImmediate;
 		isRecurring = orig.isRecurring;
 	}
 
@@ -44,7 +43,6 @@ private:
 	uint myTimer;
 	std::thread::id myThread;
 	bool myWorkComplete;
-	bool isImmediate;
 	bool isRecurring;
 
 	void Run();

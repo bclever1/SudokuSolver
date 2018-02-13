@@ -11,7 +11,7 @@ std::once_flag SolverFactory::my_once_flag;
 
 void SolverFactory::Initialize()
 {
-	std::lock_guard<std::mutex> guard(myMutex);
+	std::lock_guard<std::mutex> guard(myMutex[11]);
 
 	TimerFactory::GetInst()->Initialize();
 	Dispatcher<Timer>::GetInst()->Initialize();
@@ -34,7 +34,7 @@ void SolverFactory::Initialize()
 
 void SolverFactory::CreateNewSolver(unsigned char theBoard[])
 {
-	std::lock_guard<std::mutex> guard(myMutex);
+	std::lock_guard<std::mutex> guard(myMutex[12]);
 
 	std::unique_ptr<Solver> newSolver = std::make_unique<Solver>(theBoard);
 
@@ -46,7 +46,7 @@ void SolverFactory::CreateNewSolver(unsigned char theBoard[])
 
 void SolverFactory::CreateNewSolver(Board& theBoard)
 {
-	std::lock_guard<std::mutex> guard(myMutex);
+	std::lock_guard<std::mutex> guard(myMutex[13]);
 
 	std::unique_ptr<Solver> newSolver = std::make_unique<Solver>(theBoard);
 	mySolvers.push_front(std::move(newSolver));
@@ -57,7 +57,7 @@ void SolverFactory::CreateNewSolver(Board& theBoard)
 
 bool SolverFactory::Shutdown()
 {
-	std::lock_guard<std::mutex> guard(myMutex);
+	std::lock_guard<std::mutex> guard(myMutex[14]);
 	TimerFactory::GetInst()->Terminate();
 	TimerFactory::GetInst()->Initialize();
 	Dispatcher<Timer>::GetInst()->Reset();

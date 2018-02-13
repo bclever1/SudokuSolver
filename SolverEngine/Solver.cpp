@@ -36,7 +36,7 @@ void Solver::Initialize()
 {
 	mySolverState = SolverState::READY;
 	std::function<void()> run_callback = std::bind(&Solver::Run, this);
-	TimerFactory::GetInst()->CreateTimer(run_callback, MY_SOLVER_CLOCK_RATE, false, false);
+	TimerFactory::GetInst()->CreateTimer(run_callback, MY_SOLVER_CLOCK_RATE, false);
 }
 
 void Solver::Run()
@@ -145,7 +145,7 @@ void Solver::Run()
 			SolverFactory::GetInst()->SetScore(myBoardState);
 
 			std::function<void()> run_callback = std::bind(&Solver::Run, this);
-			TimerFactory::GetInst()->CreateTimer(run_callback, MY_SOLVER_CLOCK_RATE, false, false);
+			TimerFactory::GetInst()->CreateTimer(run_callback, MY_SOLVER_CLOCK_RATE, false);
 			mySolverState = SolverState::READY;
 
 			return;
