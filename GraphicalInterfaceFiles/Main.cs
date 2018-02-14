@@ -332,6 +332,8 @@ namespace SudokuInterface
         {
             // Validate the board input, if it's good tickle the solver FSM.
 
+            ResetResultsBoard();
+
             int numClues = 0;
 
             for (int i = 1; i <= 9; ++i)
