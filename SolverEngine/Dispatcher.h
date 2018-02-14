@@ -86,15 +86,26 @@ public:
 
 	virtual void Run()
 	{
-		std::lock_guard<std::recursive_mutex> guard(myMutex[0]);
+		std::unique_ptr<T> temp = nullptr;
 
-		if (myData.size() > 0)
+		// Set up a little local scope to lock myData.
+		// The chain of events coming from (*temp).Start() will need access.
 		{
-			std::unique_ptr<T> temp = std::move(*myData.begin());
-			myData.pop_front();
-			(*temp).Start();
-			//delete temp;
+		    std::lock_guard<std::recursive_mutex> guard(myMutex[0]);
+
+			if (myData.size() > 0)
+			{
+				temp = std::move(*myData.begin());
+				myData.pop_front();
+			}
 		}
+
+		if (temp != nullptr)
+		{
+			(*temp).Start();
+			//NO delete of temp! These guys are unique_ptrs.
+		}
+
 	}
 };
 
